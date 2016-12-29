@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from random import randint
 try: # check if BeautifulSoup4 is installed
     from bs4 import BeautifulSoup
     soupAvailable = True
@@ -20,21 +21,32 @@ except:
     soupAvailable = False
 
 ...
-
+    #Find nth occurence of word
+def find_nth(haystack, needle, n):
+    start = haystack.find(needle)
+    while start >= 0 and n > 1:
+        start = haystack.find(needle, start+len(needle))
+        n -= 1
+    return start
+        
 class Mycog:
     """My custom cog that does stuff!"""
 
+
+
     def __init__(self, bot):
         self.bot = bot
-
-
-
+    
     @commands.command()
     async def animeme(self):
-        """This does stuff!"""
+        """Posts dank animemes from /r/anime_irl."""
 
         #Store url of subreddit
         url = "https://reddit.com/r/anime_irl/top.json"
+        
+        #Random index between 1 and 25 (higher numbers dont work for some reason?) #TODO FIX LATER
+        rando = randint(0,25)
+
         
         #Get data from website using BeautifulSoup
         async with aiohttp.get(url) as response:
@@ -42,45 +54,30 @@ class Mycog:
         
         meme = soupObject.get_text()
         
-        #Trim website text
-        shortmeme = meme[:1500]
+        #Website text
+        shortmeme = meme
         
+        #Use findnth to find start index of first meme 
+        memeindex = find_nth(shortmeme, 'author_flair_text', rando)
+        #await self.bot.say(memeindex)
         #Search for start of url
-        urlstart = shortmeme.find('https')
+        urlstart = shortmeme.find('http',(memeindex-200), (memeindex+10))
         #Adjust urlstart index
         
+        #await self.bot.say(urlstart)
+        
         #Search for end of url
-        urlend= shortmeme.find('author_flair_text')
+        urlend= shortmeme.find('author_flair_text',memeindex-70,memeindex+70)
         #adjust urlend index
         urlend = urlend-4
+        #await self.bot.say(urlend)
         
         #Shorten to URL
         memeurl = shortmeme[urlstart:urlend]
         
         #Bot print message
-        await self.bot.say(memeurl + ' is currently the dankest animeme.')
-        
-        #try:
-           # meme = soupObject.find(class_='title').find('href').get_text()
-          #  await self.bot.say(meme + ' is the animeme of the day')
-        #except:
-         #   await self.bot.say("Couldn't load animeme of the day")
-
-    # @commands.command()
-    # async def animeme(self):
-     #   """How many players are online atm?"""
-
-        #Your code will go here
-     #   await self.bot.say('testing')
-     #   url = "https://steamdb.info/app/570/graphs/" #build the web adress
-      #  async with aiohttp.get(url) as response:
-       #     soupObject = BeautifulSoup(await response.text(), "html.parser")
-        #try:
-         #   online = soupObject.find(class_='home-stats').find('li').find('strong').get_text()
-          #  await self.bot.say(online + ' players are playing this game at the moment')
-        #except:
-         #   await self.bot.say("Couldn't load amount of players. No one is playing this game anymore or there's an error.")
-
+        await self.bot.say("Here's a dank animeme: " + memeurl)
+  
 ...
 
 def setup(bot):
