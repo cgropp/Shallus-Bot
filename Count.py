@@ -34,11 +34,11 @@ class Count:
             await self.bot.say("You have been visited by The Count. He only visits once in every 1,000 counts! Congratulations! http://vignette3.wikia.nocookie.net/muppet/images/3/3c/CT-p0001-ST.jpg/revision/latest?cb=20060205225316")
         
         counter = 0
-        countFile = open("cogs/counter.txt","r")
+        countFile = open("data/counter/counter.txt","r")
         counter = int(countFile.read())
         counter = counter + 1
         countFile.close()
-        countFile = open("cogs/counter.txt","w")
+        countFile = open("data/counter/counter.txt","w")
         countFile.write(str(counter))
         countFile.close()
         await self.bot.say(counter)

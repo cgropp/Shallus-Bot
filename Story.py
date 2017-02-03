@@ -45,7 +45,7 @@ class Story:
         
         curStory = ""
         charToAdd = charToAdd[0:1]
-        storyFile = open("cogs/story.txt","r+")
+        storyFile = open("data/story/story.txt","r+")
         
         #Covers max discord message length case
        # if len(curStory) > 1990:
