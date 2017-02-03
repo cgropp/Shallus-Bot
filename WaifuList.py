@@ -11,27 +11,19 @@ from discord.ext import commands
 
 
 ...
-    #Find nth occurence of word
-def find_nth(haystack, needle, n):
-    start = haystack.find(needle)
-    while start >= 0 and n > 1:
-        start = haystack.find(needle, start+len(needle))
-        n -= 1
-    return start
         
-class Count:
-    """Counts. The most useless command yet! Made by Shallus."""
+class WaifuList:
+    """Keeps track of a list of saved waifus."""
 
 
     def __init__(self, bot):
         self.bot = bot
     
     @commands.command()
-    async def count(self):
-        """Counts. The most useless command yet! Made by Shallus."""
-       s
-        await self.bot.say(counter)
-  
+    async def waifulist(self):
+        """Displays a list of your saved waifus."""
+        
+    
 ...
 
 def setup(bot):
