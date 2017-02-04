@@ -53,7 +53,7 @@ class Owner:
         self.session.close()
 
     @commands.command()
-    @checks.is_owner()
+    @checks.admin()
     async def load(self, *, module: str):
         """Loads a module
 
@@ -84,7 +84,7 @@ class Owner:
             await self.bot.say("Module enabled.")
 
     @commands.group(invoke_without_command=True)
-    @checks.is_owner()
+    @checks.admin()
     async def unload(self, *, module: str):
         """Unloads a module
 
@@ -133,7 +133,7 @@ class Owner:
         else:
             await self.bot.say("All cogs are now unloaded.")
 
-    #@checks.is_owner()
+    @checks.admin()
     @commands.command(name="reload")
     async def _reload(self, module):
         """Reloads a module
