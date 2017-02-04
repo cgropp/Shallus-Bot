@@ -3,7 +3,7 @@ import discord
 import random
 import json
 
-class ReworkedWaifu:
+class Safebooru:
 
 	def __init__(self, bot):
 		self.bot = bot
