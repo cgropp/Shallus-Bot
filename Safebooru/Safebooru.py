@@ -10,7 +10,7 @@ class Safebooru:
 		self.bot = bot
 
 	@commands.command()
-	async def Waifu(self, channel):
+	async def Waifu(self):
 		pageNum = random.randint(0, 500)
 		params = {"tags": u'1girl solo', "limit": "50", "page": str(pageNum) }
 		linkName = await self.getSafebooruLink(params)
