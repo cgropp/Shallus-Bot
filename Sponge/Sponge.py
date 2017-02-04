@@ -30,7 +30,7 @@ def find_nth(haystack, needle, n):
         n -= 1
     return start
         
-class sponge:
+class Sponge:
     """Pulls Spongebob memes from /r/bikinibottomtwitter. Made by Shallus."""
 
 
@@ -83,6 +83,6 @@ class sponge:
 
 def setup(bot):
     if soupAvailable:
-        bot.add_cog(sponge(bot))
+        bot.add_cog(Sponge(bot))
     else:
         raise RuntimeError("You need to run `pip3 install beautifulsoup4`")

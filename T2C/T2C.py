@@ -33,7 +33,7 @@ def find_nth(haystack, needle, n):
     #Returns text corresponding to path
 
         
-class t2c:
+class T2C:
     """Translates normal text to Cirion-speak. Use !t2c <text>."""
 
     
@@ -108,6 +108,6 @@ class t2c:
 
 def setup(bot):
     if soupAvailable:
-        bot.add_cog(t2c(bot))
+        bot.add_cog(T2C(bot))
     else:
         raise RuntimeError("You need to run `pip3 install beautifulsoup4`")

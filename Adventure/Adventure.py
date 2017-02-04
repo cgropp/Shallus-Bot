@@ -54,7 +54,7 @@ async def checkPath(self,inputPath:int):
 		await self.bot.say("Use !startover to start over")		
 		return	
 		
-class adventure:
+class Adventure:
 	"""Text based adventure. Use !startover to start over, !check to check the last chosen path, and !choose <1 or 2> to choose a path. Made by Shallus."""
 
 	
@@ -144,6 +144,6 @@ class adventure:
 
 def setup(bot):
 	if soupAvailable:
-		bot.add_cog(adventure(bot))
+		bot.add_cog(Adventure(bot))
 	else:
 		raise RuntimeError("You need to run `pip3 install beautifulsoup4`")

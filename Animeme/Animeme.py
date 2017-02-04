@@ -29,8 +29,8 @@ def find_nth(haystack, needle, n):
         n -= 1
     return start
         
-class Cute:
-    """My custom cog that does stuff!"""
+class Animeme:
+    """Posts dank animemes from /r/anime_irl."""
 
 
 
@@ -38,11 +38,11 @@ class Cute:
         self.bot = bot
     
     @commands.command()
-    async def cute(self):
-        """Posts stuff from /r/aww."""
+    async def Animeme(self):
+        """Posts dank animemes from /r/anime_irl."""
 
         #Store url of subreddit
-        url = "https://reddit.com/r/aww/top.json"
+        url = "https://reddit.com/r/anime_irl/top.json"
         
         #Random index between 1 and 25 (higher numbers dont work for some reason?) #TODO FIX LATER
         rando = randint(0,25)
@@ -76,12 +76,16 @@ class Cute:
         memeurl = shortmeme[urlstart:urlend]
         
         #Bot print message
-        await self.bot.say("Aww: " + memeurl)
+        #Directly link to image
+        if 'imgur' in memeurl and "i.imgur" not in memeurl and "/a/" not in memeurl:
+            await self.bot.say("Here's a dank animeme: " + memeurl + ".png")
+        else:
+            await self.bot.say("Here's a dank animeme: " + memeurl)
   
 ...
 
 def setup(bot):
     if soupAvailable:
-        bot.add_cog(Cute(bot))
+        bot.add_cog(Animeme(bot))
     else:
         raise RuntimeError("You need to run `pip3 install beautifulsoup4`")
