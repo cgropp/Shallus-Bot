@@ -19,7 +19,7 @@ class Safebooru:
 
 	async def getSafebooruLink(self, paramDict):
 		reqLink = "https://safebooru.donmai.us/posts/random.json"
-		reqReply = requests.get(reqLink, params=paramDict)
+		reqReply = requests.get(reqLink, params=paramDict, auth=HTTPBasicAuth('Shallus', 'lGVqSuermFGo9ivh4zO3_vOqgC2Sr74CkUbed4QhsSA'))
 		reqJson = reqReply.json()
 		waifuName = ""
 		if reqJson["tag_count_character"] != 0:
