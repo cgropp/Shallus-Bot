@@ -10,7 +10,7 @@ class Safebooru:
 		self.bot = bot
 
 	@commands.command()
-	async def Waifu(self):
+	async def waifu(self):
 		params = {"tags": u'1girl solo' }
 		linkName = await self.getSafebooruLink(params)
 		await self.bot.say("Here is your waifu: " + linkName)
