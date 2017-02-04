@@ -89,7 +89,7 @@ class RedditComs:
     async def animeme2(self):
         """Posts dank animemes from /r/anime_irl."""
         memeurl = await getMemeUrl("anime_irl/top", 25)
-        await self.bot.say("Here's a dank animeme: " + memeurl)
+        await self.bot.say("Here's a dank animeme: " + str(memeurl))
         
 ...
 

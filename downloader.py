@@ -43,7 +43,7 @@ class Downloader:
         dataIO.save_json(self.file_path, self.repos)
 
     @commands.group(pass_context=True)
-    @checks.is_owner()
+    @checks.admin()
     async def cog(self, ctx):
         """Additional cogs management"""
         if ctx.invoked_subcommand is None:
