@@ -25,7 +25,10 @@ class Safebooru:
 		waifuName = ""
 		if reqJson["tag_count_character"] != 0:
 			waifuName = reqJson["tag_string_character"]
-		return waifuName + "\nhttps://safebooru.donmai.us" + reqJson["large_file_url"]
+		fileUrl = reqJson.get("large_file_url")
+		if fileUrl == None:
+			fileUrl = reqJson.get("file_url")
+		return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl]
 
 def setup(bot):
 	bot.add_cog(Safebooru(bot))
