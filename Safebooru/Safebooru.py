@@ -1,5 +1,6 @@
 import requests
 import discord
+from discord.ext import commands
 import random
 import json
 
@@ -30,6 +31,6 @@ class Safebooru:
 		return waifuName + "\nhttps://safebooru.donmai.us" + randPost["large_file_url"]
 
 def setup(bot):
-	bot.add_cog(ReworkedWaifu(bot))
+	bot.add_cog(Safebooru(bot))
 		
 		
