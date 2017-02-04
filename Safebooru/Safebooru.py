@@ -22,9 +22,9 @@ class Safebooru:
 		reqReply = requests.get(reqLink, params=paramDict)
 		reqJson = reqReply.json()
 		waifuName = ""
-		if randJson["tag_count_character"] != 0:
-			waifuName = randJson["tag_string_character"]
-		return waifuName + "\nhttps://safebooru.donmai.us" + randJson["large_file_url"]
+		if reqJson["tag_count_character"] != 0:
+			waifuName = reqJson["tag_string_character"]
+		return waifuName + "\nhttps://safebooru.donmai.us" + reqJson["large_file_url"]
 
 def setup(bot):
 	bot.add_cog(Safebooru(bot))
