@@ -14,7 +14,7 @@ class Safebooru:
 		pageNum = random.randint(0, 500)
 		params = {"tags": u'1girl solo', "limit": "50", "page": str(pageNum) }
 		linkName = await self.getSafebooruLink(params)
-		await bot.say("Here is your waifu: " + linkName)
+		await self.bot.say("Here is your waifu: " + linkName)
 		return 
 
 
