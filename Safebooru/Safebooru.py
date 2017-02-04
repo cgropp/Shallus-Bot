@@ -28,7 +28,7 @@ class Safebooru:
 		fileUrl = reqJson.get("large_file_url")
 		if fileUrl == None:
 			fileUrl = reqJson.get("file_url")
-		return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl]
+		return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
 
 def setup(bot):
 	bot.add_cog(Safebooru(bot))
