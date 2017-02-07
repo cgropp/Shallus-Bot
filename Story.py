@@ -32,7 +32,7 @@ class Story:
 
         
         curStory = ""
-        storyFile = open("data/story/story.txt","r")
+        storyFile = open("cogs/story.txt","r")
         curStory = storyFile.read()
         storyFile.close()
         await self.bot.say(curStory)
@@ -58,7 +58,7 @@ class Story:
         await self.bot.say("'" + charToAdd + "' has been added to the story." )
         storyFile.close()
         #Read for printing
-        storyFile = open("data/story/story.txt","r")
+        storyFile = open("cogs/story.txt","r")
         curStory = storyFile.read()
         await self.bot.say(curStory)
         storyFile.close()
