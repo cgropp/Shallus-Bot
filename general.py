@@ -60,59 +60,6 @@ class General:
         else:
             await self.bot.say(choice(choices))
 
-	@commands.command()
-	async def t2c(message):
-    def xd(inputString):
-        if randint(0,100) < 50:
-            return (inputString + ' xd')
-        else: return inputString;
-    def similar(inp):
-        inpCopy = (inp)
-        for x in range (0, (len(inpCopy)-1)): 
-            if randint(0,100) < 8:
-                if (inpCopy[x] == 'n'):
-                    inpCopy = (inpCopy [:(x)] + 'm' + inpCopy [(x+1):])
-                elif (inpCopy[x] == 'm'):
-                    inpCopy = (inpCopy [:(x)] + 'n' + inpCopy [(x+1):])
-                elif (inpCopy[x] == 'y'):
-                    inpCopy = (inpCopy [:(x)] + 'u' + inpCopy [(x+1):])
-                elif (inpCopy[x] == 'u'):
-                    inpCopy = (inpCopy [:(x)] + 'y' + inpCopy [(x+1):])
-                elif (inpCopy[x] == 's'):
-                    inpCopy = (inpCopy [:(x)] + 'd' + inpCopy [(x+1):])
-                elif (inpCopy[x] == 'd'):
-                    inpCopy = (inpCopy [:(x)] + 's' + inpCopy [(x+1):])    
-                elif (inpCopy[x] == 'v'):
-                    inpCopy = (inpCopy [:(x)] + 'c' + inpCopy [(x+1):])
-                elif (inpCopy[x] == 'o'):
-                    inpCopy = (inpCopy [:(x)] + 'p' + inpCopy [(x+1):])    
-                elif (inpCopy[x] == 'p'):
-                    inpCopy = (inpCopy [:(x)] + 'o' + inpCopy [(x+1):])    
-                elif (inpCopy[x] == 'e'):
-                    inpCopy = (inpCopy [:(x)] + 'r' + inpCopy [(x+1):])
-                elif (inpCopy[x] == 'r'):
-                    inpCopy = (inpCopy [:(x)] + 't' + inpCopy [(x+1):])    
-                elif (inpCopy[x] == 'i'):
-                    inpCopy = (inpCopy [:(x)] + 'u' + inpCopy [(x+1):])    
-        return inpCopy;
-    
-    def jumble(inp):
-        newInp = (inp)
-        for x in range (0, (len(newInp)-1)): 
-            if(newInp[x] != ' '):
-                if(randint(0,100) < 10):
-                    newInp = (newInp[0:(x)] + newInp[x+1]+ newInp[x] + newInp[(2+x):])
-        return newInp;        
-    
-    def lowerCase(inp):
-        return (inp.lower());
-   
-    msg = message.content
-   
-    if len(msg) > 2:
-            msg = message.content[4:] # removes !t2c
-    await self.bot.say(message.channel, (lowerCase(xd(jumble(similar(msg))))))
-
     @commands.command(pass_context=True)
     async def roll(self, ctx, number : int = 100):
         """Rolls random number (between 1 and user choice)
