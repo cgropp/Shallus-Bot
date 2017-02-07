@@ -38,7 +38,7 @@ class Animeme:
         self.bot = bot
     
     @commands.command()
-    async def Animeme(self):
+    async def animeme(self):
         """Posts dank animemes from /r/anime_irl."""
 
         #Store url of subreddit
