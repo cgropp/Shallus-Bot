@@ -5,7 +5,8 @@ import asyncio
 
 # Additional imports
 import random
-import urllib.request
+import json
+from urllib.request import urlopen
 
 try: # check if BeautifulSoup4 is installed
     from bs4 import BeautifulSoup
@@ -44,7 +45,7 @@ async def getMemeUrl(subreddit : str, randoLimit : int):
 
             
     #Get JSON data from website and parse for frontpage posts
-    rawjson = urllib.request.urlopen(url).read()
+    rawjson = urllib.request.urlopen(url).read().decode('utf8')
     parsedjson = json.loads(rawjson)
     posts = parsedjson["data"]["children"]  # List
 
