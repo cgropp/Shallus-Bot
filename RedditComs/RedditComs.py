@@ -6,6 +6,7 @@ import asyncio
 # Additional imports
 import random
 import json
+import urllib.request
 from urllib.request import urlopen
 from html import unescape
 
@@ -44,9 +45,17 @@ async def getMemeUrl(subreddit : str, randoLimit : int):
     #Store url of subreddit
     url = ("https://reddit.com/r/" + subreddit + ".json")
 
+    # Set up http request
+    req = urllib.request.Request(
+        url,
+        data=None,
+        headers={
+            'User-Agent': 'Python:Shallus-Bot:v1.0 (by /u/Shallus)'
+        }
+    )
             
     #Get JSON data from website and parse for frontpage posts
-    rawjson = urlopen(url).read().decode('utf8')
+    rawjson = urlopen(req).read().decode('utf8')
     parsedjson = json.loads(rawjson)
     posts = parsedjson["data"]["children"]  # List
 
