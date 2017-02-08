@@ -6,7 +6,6 @@ import asyncio
 # Additional imports
 import random
 import json
-import urllib
 from urllib.request import urlopen
 
 try: # check if BeautifulSoup4 is installed
