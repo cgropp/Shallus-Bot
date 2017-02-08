@@ -7,6 +7,7 @@ import asyncio
 import random
 import json
 from urllib.request import urlopen
+from html import unescape
 
 try: # check if BeautifulSoup4 is installed
     from bs4 import BeautifulSoup
@@ -56,7 +57,7 @@ async def getMemeUrl(subreddit : str, randoLimit : int):
     while (posts[randpostnum]["data"]["stickied"]):
         randpostnum = random.randrange(len(posts))
 
-    memeurl = posts[randpostnum]["data"]["url"]
+    memeurl = unescape(posts[randpostnum]["data"]["url"])
 
         
     #Bot print message
