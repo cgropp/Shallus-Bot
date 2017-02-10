@@ -112,7 +112,12 @@ class RedditComs:
         """Posts stuff from /r/bikinibottomtwitter."""
         memeurl = await getMemeUrl("bikinibottomtwitter", 20)
         await self.bot.say("Fresh from Bikini Bottom: " + str(memeurl))        
-        
+
+    @commands.command()
+    async def bpt(self):
+        """Posts stuff from /r/blackpeopletwitter."""
+        memeurl = await getMemeUrl("blackpeopletwitter/top", 25)
+        await self.bot.say("Here's a post from /r/blackpeopletwitter:" + str(memeurl))          
 
         
 
