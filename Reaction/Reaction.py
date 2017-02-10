@@ -25,7 +25,7 @@ except:
 ...
         
 class Reaction:
-    """Posts anime reaction images. Use command by typing !reaction <term> . Made by Shallus."""
+    """Posts anime reaction images. Use command by typing !reaction <term> ."""
 
 
 
@@ -34,7 +34,7 @@ class Reaction:
     
     @commands.command()
     async def reaction(self, name: str):
-        """Posts anime reaction images. Use command by typing !reaction <term> . Made by Shallus."""
+        """Posts anime reaction images. Use command by typing !reaction <term> ."""
 
      
 		
