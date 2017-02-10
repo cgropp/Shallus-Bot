@@ -63,7 +63,7 @@ async def getMemeUrl(subreddit : str, randoLimit : int):
     randpostnum = random.randrange(len(posts))
 
     # Keep rerolling if post is stickied
-    while (posts[randpostnum]["data"]["stickied"]):
+    while (posts[randpostnum]["data"]["stickied"] or posts[randpostnum]["data"]["over_18"]):
         randpostnum = random.randrange(len(posts))
 
     memeurl = unescape(posts[randpostnum]["data"]["url"])
