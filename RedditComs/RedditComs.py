@@ -117,7 +117,7 @@ class RedditComs:
     async def bpt(self):
         """Posts stuff from /r/blackpeopletwitter."""
         memeurl = await getMemeUrl("blackpeopletwitter/top", 25)
-        await self.bot.say("Here's a post from /r/blackpeopletwitter:" + str(memeurl))          
+        await self.bot.say("Here's a post from /r/blackpeopletwitter: " + str(memeurl))          
 
         
 
