@@ -16,7 +16,22 @@ class Safebooru:
 		linkName = await self.getSafebooruLink(params)
 		await self.bot.say("Here is your waifu: " + linkName)
 		return 
-
+	
+    @commands.command()
+	async def yuri(self):
+		params = {"tags": u'holding_hands yuri' }
+		linkName = await self.getSafebooruLink(params)
+		await self.bot.say("Here's some (SFW) yuri: " + linkName)
+		return 
+        
+    @commands.command()
+	async def husbando(self):
+		params = {"tags": u'1boy solo' }
+		linkName = await self.getSafebooruLink(params)
+		await self.bot.say("Here's your husbando: " + linkName)
+		return         
+        
+        
 
 	async def getSafebooruLink(self, paramDict):
 		reqLink = "https://safebooru.donmai.us/posts/random.json"
