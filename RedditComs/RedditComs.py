@@ -62,14 +62,15 @@ async def getMemeUrl(subreddit : str, randoLimit : int):
     # Get random meme from frontpage
     randpostnum = random.randrange(len(posts))
 
-    # Keep rerolling if post is stickied
+    # Remove NSFW or sticked post from list if one come across, keep rerolling
     rolls = 0
     while (posts[randpostnum]["data"]["stickied"] or posts[randpostnum]["data"]["over_18"]):
-        randpostnum = random.randrange(len(posts))
+        posts.pop(randpostnum)
+        if (not posts):
+            return("No SFW content found!")
 
-        rolls += 1
-        if(rolls > randoLimit):
-            return("Nothing found.")
+        randpostnum = random.randrange(len(posts))
+        print(posts)
 
 
     memeurl = unescape(posts[randpostnum]["data"]["url"])
