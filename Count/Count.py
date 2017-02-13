@@ -35,6 +35,7 @@ class Count:
         
         counter = 0
         countFile = open("data/counter/counter.txt","r")
+        print "Hi"
         counter = int(countFile.read())
         counter = counter + 1
         countFile.close()
@@ -42,7 +43,6 @@ class Count:
         countFile.write(str(counter))
         countFile.close()
         await self.bot.say(counter)
-  
 ...
 
 def setup(bot):
