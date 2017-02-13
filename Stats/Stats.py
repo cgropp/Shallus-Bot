@@ -18,7 +18,9 @@ class Stats:
         userid = ctx.message.author.id
         displayname = ctx.message.author.display_name
 
-        # Can't print if data invalid or if
+        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+
+        # Can't print if data invalid
         if not os.path.isfile(datapath + "/" + userid + ".json"):
             await self.bot.say("You don't have any stats tracked, " + displayname + "! Try using some commands.")
             return
@@ -28,14 +30,22 @@ class Stats:
             dataIO.save_json(datapath + "/" + userid + ".json", data)
             return
 
-        output = ""
+        output = "Here are your stats, " + ctx.message.author.display_name + ":\n\n"
         # Print all available stats
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
-        for commandname, count in userdata.items():
-            output += commandname + ":  " + str(count) + "\n"
+
+        if "commands" in userdata and not len(userdata["commands"]) == 0:
+            output += "--Times commands called--\n"
+            for commandname, count in userdata["commands"].items():
+                output += commandname + ":  " + str(count) + "\n"
+
+        if "achievement" in userdata and not len(userdata["achievements"]) == 0:
+            output += "\n--Achievements--\n"
+            for achievement, count in userdata["achievements"].items():
+                output += achievement + ":  " + str(count) + "\n"
+
         await self.bot.say(output)
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
 
         return
 
@@ -58,16 +68,18 @@ class StatsTracker:
             invalidJSON = True
 
         if(invalidJSON):
-            data = {}
+            data = {"commands": {}, "achievements": {}}
             dataIO.save_json(datapath + "/" + userid + ".json", data)
 
 
         # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
-        if commandname not in userdata:
-            userdata[commandname] = 0
+        if "commands" not in userdata:
+            userdata["commands"] = {}
+        if commandname not in userdata["commands"]:
+            userdata["commands"][commandname] = 0
 
-        userdata[commandname] += 1
+        userdata["commands"][commandname] += 1
         dataIO.save_json(datapath + "/" + userid + ".json", userdata)
 
         return

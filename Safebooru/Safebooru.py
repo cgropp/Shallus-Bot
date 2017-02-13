@@ -3,14 +3,14 @@ import discord
 from discord.ext import commands
 import random
 import json
-import os 
+import os
 import time
 
 from cogs.utils.dataIO import dataIO
 from requests.auth import HTTPBasicAuth
 
-class Safebooru:
 
+class Safebooru:
     def __init__(self, bot):
         self.bot = bot
         self.waifuLists = {}
@@ -26,33 +26,32 @@ class Safebooru:
             for user in invalidLists:
                 print(user)
 
-
     @commands.command(pass_context=True)
     async def waifu(self, ctx):
-        params = {"tags": u'1girl solo' }
+        params = {"tags": u'1girl solo'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here is your waifu: " + linkName)
 
         await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
-        return 
-        
+        return
+
     @commands.command(pass_context=True)
     async def yuri(self, ctx):
-        params = {"tags": u'holding_hands yuri' }
+        params = {"tags": u'holding_hands yuri'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here's some (SFW) yuri: " + linkName)
 
         await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
-        return 
-        
+        return
+
     @commands.command(pass_context=True)
     async def husbando(self, ctx):
-        params = {"tags": u'1boy solo' }
+        params = {"tags": u'1boy solo'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here's your husbando: " + linkName)
 
         await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
-        return 
+        return
 
     @commands.command(pass_context=True)
     async def marry_waifu(self, ctx):
@@ -108,17 +107,17 @@ class Safebooru:
         lastDelete = waifuList.get("last_delete")
         if lastDelete != None and time.time() - float(lastDelete) < (5 * 24 * 60 * 60):
             await self.bot.say("It hasn't been 5 days since your last divorce! Spare some hearts, would ya?")
-         #   return
+            #   return
         self.waifuLists[author.id]["waifu_list"].pop(index)
         self.waifuLists[author.id]["last_delete"] = time.time()
         dataIO.save_json("data/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
         await self.bot.say("Waifu successfully divorced.")
         return
-        
-        
+
     async def getSafebooruLink(self, paramDict, user):
         reqLink = "https://safebooru.donmai.us/posts/random.json"
-        reqReply = requests.get(reqLink, params=paramDict, auth=HTTPBasicAuth('Shallus', 'lGVqSuermFGo9ivh4zO3_vOqgC2Sr74CkUbed4QhsSA'))
+        reqReply = requests.get(reqLink, params=paramDict,
+                                auth=HTTPBasicAuth('Shallus', 'lGVqSuermFGo9ivh4zO3_vOqgC2Sr74CkUbed4QhsSA'))
         if reqReply == None:
             return "\n(something went wrong, please try again)"
         reqJson = reqReply.json()
@@ -130,6 +129,7 @@ class Safebooru:
             fileUrl = reqJson.get("file_url")
         self.lastWaifuRolled[user.id] = {"name": waifuName, "img": "https://safebooru.donmai.us" + fileUrl}
         return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
+
 
 def checkFolders():
     if not os.path.exists("data/WaifuList"):
@@ -157,17 +157,18 @@ class StatsTracker:
             await self.bot.say("Invalid stats JSON found. All your stats are gone forever. Blame a dev :^(")
             invalidJSON = True
 
-        if(invalidJSON):
-            data = {}
+        if (invalidJSON):
+            data = {"commands": {}, "achievements": {}}
             dataIO.save_json(datapath + "/" + userid + ".json", data)
-
 
         # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
-        if commandname not in userdata:
-            userdata[commandname] = 0
+        if "commands" not in userdata:
+            userdata["commands"] = {}
+        if commandname not in userdata["commands"]:
+            userdata["commands"][commandname] = 0
 
-        userdata[commandname] += 1
+        userdata["commands"][commandname] += 1
         dataIO.save_json(datapath + "/" + userid + ".json", userdata)
 
         return
@@ -176,8 +177,9 @@ class StatsTracker:
     async def stats(self, ctx):
         return
 
+
 def setup(bot):
     checkFolders()
     bot.add_cog(Safebooru(bot))
-        
-        
+
+
