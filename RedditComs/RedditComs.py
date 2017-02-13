@@ -156,7 +156,6 @@ class StatsTracker:
         # Create JSON file if does not exist or if invalid
         invalidJSON = False
         if not os.path.isfile(datapath + "/" + userid + ".json"):
-            await self.bot.say("No userdata exists for " + userid + "! Creating...")
             invalidJSON = True
         elif not dataIO.is_valid_json(datapath + "/" + userid + ".json"):
             await self.bot.say("Invalid stats JSON found. All your stats are gone forever. Blame a dev :^(")
