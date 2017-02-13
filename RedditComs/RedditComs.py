@@ -161,16 +161,19 @@ class StatsTracker:
             await self.bot.say("Invalid stats JSON found. All your stats are gone forever. Blame a dev :^(")
             invalidJSON = True
 
-        if (invalidJSON):
-            data = {}
+        if(invalidJSON):
+            data = {"commands": {}, "achievements": {}}
             dataIO.save_json(datapath + "/" + userid + ".json", data)
+
 
         # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
-        if commandname not in userdata:
-            userdata[commandname] = 0
+        if "commands" not in userdata:
+            userdata["commands"] = {}
+        if commandname not in userdata["commands"]:
+            userdata["commands"][commandname] = 0
 
-        userdata[commandname] += 1
+        userdata["commands"][commandname] += 1
         dataIO.save_json(datapath + "/" + userid + ".json", userdata)
 
         return
