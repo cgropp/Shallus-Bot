@@ -163,7 +163,7 @@ class StatsTracker:
             dataIO.save_json(datapath + "/" + userid + ".json", data)
 
 
-        # Read in JSON file, increment command count, and write
+        # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
         if commandname not in userdata:
             userdata[commandname] = 0
