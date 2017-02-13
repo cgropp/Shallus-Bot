@@ -20,7 +20,7 @@ def find_nth(haystack, needle, n):
     return start
         
 class Count:
-    """Counts. The most useless command yet! Made by Shallus."""
+    """Counts. The most useless command yet!"""
 
 
     def __init__(self, bot):
@@ -28,7 +28,7 @@ class Count:
     
     @commands.command()
     async def count(self):
-        """Counts. The most useless command yet! Made by Shallus."""
+        """Counts. The most useless command yet!"""
         rando = randint(0,1000)
         if rando == (999):
             await self.bot.say("You have been visited by The Count. He only visits once in every 1,000 counts! Congratulations! http://vignette3.wikia.nocookie.net/muppet/images/3/3c/CT-p0001-ST.jpg/revision/latest?cb=20060205225316")
