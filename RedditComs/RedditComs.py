@@ -3,6 +3,9 @@ from discord.ext import commands
 from random import randint
 import asyncio
 
+import os
+from cogs.utils.dataIO import dataIO
+
 # Additional imports
 import random
 import json
@@ -10,8 +13,9 @@ import urllib.request
 from urllib.request import urlopen
 from html import unescape
 
-try: # check if BeautifulSoup4 is installed
+try:  # check if BeautifulSoup4 is installed
     from bs4 import BeautifulSoup
+
     soupAvailable = True
 except:
     soupAvailable = False
@@ -23,26 +27,29 @@ from discord.ext import commands
 
 ...
 
-try: # check if BeautifulSoup4 is installed
+try:  # check if BeautifulSoup4 is installed
     from bs4 import BeautifulSoup
+
     soupAvailable = True
 except:
     soupAvailable = False
 
 ...
 
-    
-    #Find nth occurence of word
+
+# Find nth occurence of word
 def find_nth(haystack, needle, n):
     start = haystack.find(needle)
     while start >= 0 and n > 1:
-        start = haystack.find(needle, start+len(needle))
+        start = haystack.find(needle, start + len(needle))
         n -= 1
     return start
 
-  #Gets meme url from subreddit
-async def getMemeUrl(subreddit : str, randoLimit : int):    
-    #Store url of subreddit
+    # Gets meme url from subreddit
+
+
+async def getMemeUrl(subreddit: str, randoLimit: int):
+    # Store url of subreddit
     url = ("https://reddit.com/r/" + subreddit + ".json")
 
     # Set up http request
@@ -53,8 +60,8 @@ async def getMemeUrl(subreddit : str, randoLimit : int):
             'User-Agent': 'Python:Shallus-Bot:v1.0 (by /u/Shallus)'
         }
     )
-            
-    #Get JSON data from website and parse for frontpage posts
+
+    # Get JSON data from website and parse for frontpage posts
     rawjson = urlopen(req).read().decode('utf8')
     parsedjson = json.loads(rawjson)
     posts = parsedjson["data"]["children"]  # List
@@ -67,70 +74,115 @@ async def getMemeUrl(subreddit : str, randoLimit : int):
     while (posts[randpostnum]["data"]["stickied"] or posts[randpostnum]["data"]["over_18"]):
         posts.pop(randpostnum)
         if (not posts):
-            return("No SFW content found!")
+            return ("No SFW content found!")
 
         randpostnum = random.randrange(len(posts))
         print(posts)
 
-
     memeurl = unescape(posts[randpostnum]["data"]["url"])
 
-        
-    #Bot print message
-    #Directly link to image
+    # Bot print message
+    # Directly link to image
     if 'imgur' in memeurl and "i.imgur" not in memeurl and "/a/" not in memeurl:
         memeurl = (memeurl + ".png")
-       
-    return str(memeurl)      
-  
+
+    return str(memeurl)
+
+
 class RedditComs:
     """Fetches content from reddit."""
 
     def __init__(self, bot):
         self.bot = bot
-   
-    
-    @commands.command()
-    async def animeme(self):
+
+    @commands.command(pass_context=True)
+    async def animeme(self, ctx):
         """Posts dank animemes from /r/anime_irl."""
         memeurl = await getMemeUrl("anime_irl/top", 25)
         await self.bot.say("Here's a dank animeme: " + str(memeurl))
-        
-    @commands.command()
-    async def birb(self):
+
+        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+
+    @commands.command(pass_context=True)
+    async def birb(self, ctx):
         """Posts stuff from /r/birbs."""
         memeurl = await getMemeUrl("birbs", 20)
         await self.bot.say("Chirp chirp: " + str(memeurl))
 
-    @commands.command()
-    async def cute(self):
+        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+
+    @commands.command(pass_context=True)
+    async def cute(self, ctx):
         """Posts stuff from /r/aww."""
         memeurl = await getMemeUrl("aww/top", 25)
         await self.bot.say("Aww: " + str(memeurl))
-        
-    @commands.command()
-    async def dogmeme(self):
+
+        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+
+    @commands.command(pass_context=True)
+    async def dogmeme(self, ctx):
         """Posts stuff from /r/woof_irl"""
         memeurl = await getMemeUrl("woof_irl", 25)
         await self.bot.say("Woof: " + str(memeurl))
-        
-    @commands.command()
-    async def sponge(self):
+
+        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+
+    @commands.command(pass_context=True)
+    async def sponge(self, ctx):
         """Posts stuff from /r/bikinibottomtwitter."""
         memeurl = await getMemeUrl("bikinibottomtwitter", 20)
-        await self.bot.say("Fresh from Bikini Bottom: " + str(memeurl))        
+        await self.bot.say("Fresh from Bikini Bottom: " + str(memeurl))
 
-    @commands.command()
-    async def bpt(self):
+        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+
+    @commands.command(pass_context=True)
+    async def bpt(self, ctx):
         """Posts stuff from /r/blackpeopletwitter."""
         memeurl = await getMemeUrl("blackpeopletwitter/top", 25)
-        await self.bot.say("Here's a post from /r/blackpeopletwitter: " + str(memeurl))          
+        await self.bot.say("Here's a post from /r/blackpeopletwitter: " + str(memeurl))
 
-        
+        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
 
-        
-        
+
+class StatsTracker:
+    async def updateStat(self, userid, commandname):
+        datapath = "data/stats"
+
+        # Create directory if does not exist
+        if not os.path.exists(datapath):
+            print("Creating stats data directory...")
+            os.makedirs(datapath)
+
+        # Create JSON file if does not exist or if invalid
+        invalidJSON = False
+        if not os.path.isfile(datapath + "/" + userid + ".json"):
+            await self.bot.say("No userdata exists for " + userid + "! Creating...")
+            invalidJSON = True
+        elif not dataIO.is_valid_json(datapath + "/" + userid + ".json"):
+            await self.bot.say("Invalid stats JSON found. All your stats are gone forever. Blame a dev :^(")
+            invalidJSON = True
+
+        if (invalidJSON):
+            data = {}
+            dataIO.save_json(datapath + "/" + userid + ".json", data)
+
+        # Read in JSON file, increment command count, write
+        userdata = dataIO.load_json(datapath + "/" + userid + ".json")
+        if commandname not in userdata:
+            userdata[commandname] = 0
+
+        userdata[commandname] += 1
+        dataIO.save_json(datapath + "/" + userid + ".json", userdata)
+
+        return
+
+    @commands.command(pass_context=True)
+    async def stats(self, ctx):
+        return
+
+
 ...
+
 
 def setup(bot):
     if soupAvailable:

@@ -30,7 +30,7 @@ class Stats:
         # Print all available stats
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
         for commandname, count in userdata.items():
-            output += str.capitalize(commandname) + ":  " + str(count) + "\n"
+            output += commandname + ":  " + str(count) + "\n"
         await self.bot.say(output)
 
         return
