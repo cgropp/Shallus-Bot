@@ -7,11 +7,13 @@ import os
 from cogs.utils.dataIO import dataIO
 
 class Stats:
+    """Prints how many times you've used commands."""
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(pass_context=True)
     async def stats(self, ctx):
+        """Prints how many times you've used commands."""
         datapath = "data/stats"
         userid = ctx.message.author.id
         displayname = ctx.message.author.display_name
