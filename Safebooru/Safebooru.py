@@ -4,6 +4,7 @@ from discord.ext import commands
 import random
 import json
 import os 
+import time
 
 from cogs.utils.dataIO import dataIO
 from requests.auth import HTTPBasicAuth
@@ -75,17 +76,20 @@ class Safebooru:
     async def waifu_list(self, ctx):
         author = ctx.message.author
         lastRolled = self.lastWaifuRolled.get(author.id)
+        fullString = ""
         if lastRolled != None:
-            await self.bot.say("Last waifu rolled: " + lastRolled["name"] + "\n" + lastRolled["img"] + "\n")
+            fullString += "Last waifu rolled: " + lastRolled["name"] + "\n<" + lastRolled["img"] + ">\n"
         waifuList = self.waifuLists.get(author.id)
         if waifuList == None or len(waifuList["waifu_list"]) == 0:
-            await self.bot.say("No waifus married yet! Go marry some waifus!")
+            fullString += "No waifus married yet! Go marry some waifus!"
+            await self.bot.say(fullString)
             return
-        await self.bot.say("Here are your waifus: \n")
+        fullString += "Here are your waifus, " + author.mention + ": \n"
         i = 0
         for waifu in waifuList["waifu_list"]:
-            await self.bot.say("[" + str(i) + "] " + waifu["name"] + "\n" + waifu["img"] + "\n")
+            fullString += "[" + str(i) + "] " + waifu["name"] + "\n<" + waifu["img"] + ">\n"
             i = i + 1
+        await self.bot.say(fullString)
         return
 
     @commands.command(pass_context=True)
@@ -95,7 +99,12 @@ class Safebooru:
         if waifuList == None or len(waifuList["waifu_list"]) < index:
             await self.bot.say("Invalid index")
             return
+        lastDelete = waifuList.get("last_delete")
+        if lastDelete != None and time.time() - float(lastDelete) < (5 * 24 * 60 * 60):
+            await self.bot.say("It hasn't been 5 days since your last divorce! Spare some hearts, would ya?")
+            return
         self.waifuLists[author.id]["waifu_list"].pop(index)
+        self.waifuLists[author.id]["last_delete"] = time.time()
         dataIO.save_json("data/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
         await self.bot.say("Waifu successfully divorced.")
         return
@@ -104,6 +113,8 @@ class Safebooru:
     async def getSafebooruLink(self, paramDict, user):
         reqLink = "https://safebooru.donmai.us/posts/random.json"
         reqReply = requests.get(reqLink, params=paramDict, auth=HTTPBasicAuth('Shallus', 'lGVqSuermFGo9ivh4zO3_vOqgC2Sr74CkUbed4QhsSA'))
+        if reqReply == None:
+            return "\n(something went wrong, please try again)"
         reqJson = reqReply.json()
         waifuName = "(name not provided)"
         if reqJson["tag_count_character"] != 0:
