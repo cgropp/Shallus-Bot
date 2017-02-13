@@ -42,7 +42,7 @@ class Count:
         """Counts. The most useless command yet!"""
         rando = randint(0, 1000)
         if rando == (999):
-            await StatsTracker.updateStat(self, ctx.message.author.id, "THE COUNT")
+            await StatsTracker.updateStat(self, "achievements", ctx.message.author.id, "Summoned The Count")
             await self.bot.say(
                 "You have been visited by The Count. He only visits once in every 1,000 counts! Congratulations! http://vignette3.wikia.nocookie.net/muppet/images/3/3c/CT-p0001-ST.jpg/revision/latest?cb=20060205225316")
 
@@ -56,10 +56,10 @@ class Count:
         countFile.close()
         await self.bot.say(counter)
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
 
 class StatsTracker:
-    async def updateStat(self, userid, commandname):
+    async def updateStat(self, stattype, userid, commandname):
         datapath = "data/stats"
 
         # Create directory if does not exist
@@ -82,12 +82,12 @@ class StatsTracker:
 
         # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
-        if "commands" not in userdata:
-            userdata["commands"] = {}
+        if stattype not in userdata:
+            userdata[stattype] = {}
         if commandname not in userdata["commands"]:
-            userdata["commands"][commandname] = 0
+            userdata[stattype][commandname] = 0
 
-        userdata["commands"][commandname] += 1
+        userdata[stattype][commandname] += 1
         dataIO.save_json(datapath + "/" + userid + ".json", userdata)
 
         return

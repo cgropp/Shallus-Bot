@@ -39,7 +39,7 @@ class Stats:
             for commandname, count in userdata["commands"].items():
                 output += commandname + ":  " + str(count) + "\n"
 
-        if "achievement" in userdata and not len(userdata["achievements"]) == 0:
+        if "achievements" in userdata and not len(userdata["achievements"]) == 0:
             output += "\n--Achievements--\n"
             for achievement, count in userdata["achievements"].items():
                 output += achievement + ":  " + str(count) + "\n"
