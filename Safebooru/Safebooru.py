@@ -16,11 +16,11 @@ class Safebooru:
         self.waifuLists = {}
         self.lastWaifuRolled = {}
         invalidLists = []
-        for userId in os.listdir("data/WaifuList"):
-            if not dataIO.is_valid_json("data/WaifuList/" + userId):
+        for userId in os.listdir("data/safebooru/WaifuList"):
+            if not dataIO.is_valid_json("data/safebooru/WaifuList/" + userId):
                 invalidLists.append(userId + "\n")
             else:
-                self.waifuLists[userId[:-5]] = dataIO.load_json("data/WaifuList/" + userId)
+                self.waifuLists[userId[:-5]] = dataIO.load_json("data/safebooru/WaifuList/" + userId)
         if not len(invalidLists) == 0:
             print("Warning: the following files were not saved properly, and have been lost: \n")
             for user in invalidLists:
@@ -57,7 +57,7 @@ class Safebooru:
     async def marry_waifu(self, ctx):
         author = ctx.message.author
         waifu = self.lastWaifuRolled.get(author.id)
-        authorFile = "data/WaifuList/" + str(author.id) + ".json"
+        authorFile = "data/safebooru/WaifuList/" + str(author.id) + ".json"
         if waifu == None:
             await self.bot.say("No character rolled this session.")
             return
@@ -110,7 +110,7 @@ class Safebooru:
             #   return
         self.waifuLists[author.id]["waifu_list"].pop(index)
         self.waifuLists[author.id]["last_delete"] = time.time()
-        dataIO.save_json("data/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
+        dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
         await self.bot.say("Waifu successfully divorced.")
         return
 
@@ -132,9 +132,9 @@ class Safebooru:
 
 
 def checkFolders():
-    if not os.path.exists("data/WaifuList"):
-        print("Creating directory data/WaifuList...")
-        os.makedirs("data/WaifuList")
+    if not os.path.exists("data/safebooru/WaifuList"):
+        print("Creating directory data/safebooru/WaifuList...")
+        os.makedirs("data/safebooru/WaifuList")
     if not os.path.exists("data/stats"):
         print("Creating directory data/stats...")
         os.makedirs("data/stats")
