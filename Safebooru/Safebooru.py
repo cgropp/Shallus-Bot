@@ -123,9 +123,9 @@ class Safebooru:
             await self.bot.say("Invalid index")
             return
         lastDelete = waifuList.get("last_delete")
-        if lastDelete != None and time.time() - float(lastDelete) < (5 * 24 * 60 * 60):
-            await self.bot.say("It hasn't been 5 days since your last divorce! Spare some hearts, would ya?")
-            #   return
+        if lastDelete != None and time.time() - float(lastDelete) < (1 * 24 * 60 * 60):
+            await self.bot.say("It hasn't been 24 hours since your last divorce! Spare some hearts, would ya?")
+            return
         self.waifuLists[author.id]["waifu_list"].pop(index)
         self.waifuLists[author.id]["last_delete"] = time.time()
         dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
