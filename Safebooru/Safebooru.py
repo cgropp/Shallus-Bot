@@ -32,7 +32,7 @@ class Safebooru:
         """Posts a random waifu from Safebooru."""
         params = {"tags": u'1girl solo'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
-        await self.bot.say("Here is your waifu: " + linkName)
+        await self.bot.say("Here is your waifu, " + ctx.message.author.display_name + ": " + linkName)
 
         await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
         return
@@ -42,7 +42,7 @@ class Safebooru:
         """Posts a random husbando from Safebooru."""
         params = {"tags": u'1boy solo'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
-        await self.bot.say("Here's your husbando: " + linkName)
+        await self.bot.say("Here's your husbando, " + ctx.message.author.display_name + ": " + linkName)
 
         await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
         return        
@@ -52,7 +52,7 @@ class Safebooru:
         """Posts a random (SFW) yuri image from Safebooru."""
         params = {"tags": u'holding_hands yuri'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
-        await self.bot.say("Here's some (SFW) yuri: " + linkName)
+        await self.bot.say("Here's some (SFW) yuri, " + ctx.message.author.display_name + ": " + linkName)
 
         await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
         return
@@ -62,7 +62,7 @@ class Safebooru:
         """Posts a random (SFW) yaoi image from Safebooru."""
         params = {"tags": u'yaoi'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
-        await self.bot.say("Here's some (SFW) yaoi: " + linkName)
+        await self.bot.say("Here's some (SFW) yaoi, " + ctx.message.author.display_name + ": " + linkName)
 
         await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
         return
@@ -82,7 +82,7 @@ class Safebooru:
             self.waifuLists[author.id] = {"name": author.name, "waifu_list": [waifu]}
             dataIO.save_json(authorFile, self.waifuLists[author.id])
             self.lastWaifuRolled[author.id] = None
-            await self.bot.say("Waifu successfully married!")
+            await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!")
             return
         if len(waifuList["waifu_list"]) >= 5:
             await self.bot.say("Max number of waifus reached! Please divorce a waifu before marrying more.")
@@ -90,7 +90,7 @@ class Safebooru:
         self.waifuLists[author.id]["waifu_list"].append(waifu)
         dataIO.save_json(authorFile, self.waifuLists[author.id])
         self.lastWaifuRolled[author.id] = None
-        await self.bot.say("Waifu successfully married!")
+        await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!")
         return
 
     @commands.command(pass_context=True)
