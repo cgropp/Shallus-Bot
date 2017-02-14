@@ -41,7 +41,7 @@ class Count:
     async def count(self, ctx):
         """Counts. The most useless command yet!"""
         rando = randint(0, 1000)
-        if rando == (999):
+        if rando == (0):
             await StatsTracker.updateStat(self, "achievements", ctx.message.author.id, "Summoned The Count")
             await self.bot.say(
                 "You have been visited by The Count. He only visits once in every 1,000 counts! Congratulations! http://vignette3.wikia.nocookie.net/muppet/images/3/3c/CT-p0001-ST.jpg/revision/latest?cb=20060205225316")
