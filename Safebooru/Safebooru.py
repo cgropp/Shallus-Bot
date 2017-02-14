@@ -119,7 +119,7 @@ class Safebooru:
         """Removes a waifu from your waifu list. Use !divorcewaifu <list index>"""
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
-        if index < 0 or waifuList == None or len(waifuList["waifu_list"]) < index:
+        if index < 0 or waifuList == None or len(waifuList["waifu_list"]) - 1 < index:
             await self.bot.say("Invalid index")
             return
         lastDelete = waifuList.get("last_delete")
@@ -138,13 +138,9 @@ class Safebooru:
         """Renames a waifu in your waifu list. Use !renamewaifu <list index> <desired name>"""
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
-        if index < 0 or waifuList == None or len(waifuList["waifu_list"]) < index:
+        if index < 0 or waifuList == None or len(waifuList["waifu_list"]) - 1 < index:
             await self.bot.say("Invalid index")
             return
-        lastDelete = waifuList.get("last_delete")
-        if lastDelete != None and time.time() - float(lastDelete) < (5 * 24 * 60 * 60):
-            await self.bot.say("It hasn't been 5 days since your last divorce! Spare some hearts, would ya?")
-            #   return
         self.waifuLists[author.id]["waifu_list"][index]["name"] = newName
         dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
         await self.bot.say("Renamed waifu #" + str(index) + " to " + newName + ".")
