@@ -105,9 +105,15 @@ class RedditComs:
 
     @commands.command(pass_context=True)
     async def birb(self, ctx):
-        """Posts stuff from /r/birbs."""
-        memeurl = await getMemeUrl("birbs", 20)
-        await self.bot.say("Chirp chirp: " + str(memeurl))
+        """Posts stuff from /r/birbs and /r/birdswitharms ."""
+        rando5050 = random.randint(0,1)
+        if (rando5050):
+            memeurl = await getMemeUrl("birbs", 20)
+            await self.bot.say("Chirp chirp: " + str(memeurl))
+        else: 
+            memeurl = await getMemeUrl("birdswitharms", 20)
+            await self.bot.say("CHIRP CHIRP: " + str(memeurl))
+        
 
         await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
 
@@ -135,13 +141,6 @@ class RedditComs:
 
         await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
 
-    @commands.command(pass_context=True)
-    async def bpt(self, ctx):
-        """Posts stuff from /r/blackpeopletwitter."""
-        memeurl = await getMemeUrl("blackpeopletwitter/top", 25)
-        await self.bot.say("Here's a post from /r/blackpeopletwitter: " + str(memeurl))
-
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
 
 
 class StatsTracker:
