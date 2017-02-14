@@ -61,6 +61,7 @@ class Count:
 class StatsTracker:
     async def updateStat(self, stattype, userid, commandname):
         datapath = "data/stats"
+        command = commandname.split(' ', 1)[0]
 
         # Create directory if does not exist
         if not os.path.exists(datapath):
@@ -84,10 +85,10 @@ class StatsTracker:
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
         if stattype not in userdata:
             userdata[stattype] = {}
-        if commandname not in userdata["commands"]:
-            userdata[stattype][commandname] = 0
+        if command not in userdata["commands"]:
+            userdata[stattype][command] = 0
 
-        userdata[stattype][commandname] += 1
+        userdata[stattype][command] += 1
         dataIO.save_json(datapath + "/" + userid + ".json", userdata)
 
         return
