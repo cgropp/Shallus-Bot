@@ -96,40 +96,66 @@ class Safebooru:
     @commands.command(pass_context=True)
     async def waifulist(self, ctx):
         """Displays your waifu list."""
-        author = ctx.message.author
+        author = ctx.message.author     # set up local vars
         lastRolled = self.lastWaifuRolled.get(author.id)
         fullString = ""
-        if lastRolled != None:
+
+        if lastRolled != None: # display the last rolled waifu
             fullString += "Last waifu rolled: " + lastRolled["name"] + "\n<" + lastRolled["img"] + ">\n"
+
         waifuList = self.waifuLists.get(author.id)
-        if waifuList == None or len(waifuList["waifu_list"]) == 0:
+
+        if waifuList == None or len(waifuList["waifu_list"]) == 0:   # no waifus
             fullString += "No waifus married yet! Go marry some waifus!"
             await self.bot.say(fullString)
             return
-        fullString += "Here are your waifus, " + author.mention + ": \n"
-        i = 0
-        for waifu in waifuList["waifu_list"]:
-            fullString += "[" + str(i) + "] " + waifu["name"] + "\n<" + waifu["img"] + ">\n"
-            i = i + 1
-        await self.bot.say(fullString)
+
+        fullString += "Here are your waifus, " + author.mention + ": \n" #here here we go
+        i = 0                          #so we're finally here, listing waifus for you
+        for waifu in waifuList["waifu_list"]:     #if you know their names, you can join in too!
+            fullString += "[" + str(i) + "] " + waifu["name"] + "\n<" + waifu["img"].replace("_", "%5F")+ ">\n" #so put your hands together, if you wanna clap
+            i = i + 1   #as we take you through, this waifu list
+        await self.bot.say(fullString) #WL, WAIFU LIST
         return
 
     @commands.command(pass_context=True)
     async def divorcewaifu(self, ctx, index: int):
         """Removes a waifu from your waifu list. Use !divorcewaifu <list index>"""
+        cooldown = 1 * 24 * 60 * 60
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
+
         if index < 0 or waifuList == None or len(waifuList["waifu_list"]) - 1 < index:
             await self.bot.say("Invalid index")
             return
+
         lastDelete = waifuList.get("last_delete")
-        if lastDelete != None and time.time() - float(lastDelete) < (1 * 24 * 60 * 60):
-            await self.bot.say("It hasn't been 24 hours since your last divorce! Spare some hearts, would ya?")
+
+        if lastDelete != None and time.time() - float(lastDelete) < cooldown: # cooldown still active
+
+            timeRemaining = cooldown - (time.time() - float(lastDelete))       # calculate remaining time in hrs/minutes
+            timeInHours = timeRemaining / (60**2)
+            remainingMins = (timeInHours - int(timeInHours)) * 60
+
+            retString = "It hasn't been 24 hours since your last divorce! Please wait " + str(int(timeInHours)) + " hours and " + str(int(remainingMins)) + " minutes before divorcing again."
+
+            if random.randint(1, 100) == 100:      # shallus-bot is the offspring of glados
+                retString += " You monster."
+
+            await self.bot.say(retString)
             return
-        self.waifuLists[author.id]["waifu_list"].pop(index)
+
+        await self.bot.say("Are you sure you want to divorce" + waifuList["waifu_list"][index]["name"] + "? (yes/no)") #confirm your divorce
+        answer = await self.bot.wait_for_message(timeout=15, author=author)
+
+        if answer == None or not answer.content.lower().strip() == "yes": #if it's not yes, then it's no
+            await self.bot.say("I hope your marriage is happy.")
+            return
+
+        self.waifuLists[author.id]["waifu_list"].pop(index) #pop out of the list
         self.waifuLists[author.id]["last_delete"] = time.time()
-        dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
-        await self.bot.say("Waifu successfully divorced.")
+        dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id]) #json i/o stuff
+        await self.bot.say("Waifu successfully divorced.") 
         return
         
         
@@ -146,19 +172,50 @@ class Safebooru:
         await self.bot.say("Renamed waifu #" + str(index) + " to " + newName + ".")
         return       
 
+    @commands.command(pass_context=True)
+    async def displaywaifu(self, ctx, index: int):
+        """Show off your waifu! User !displaywaifu <list index>"""
+        author = ctx.message.author #set up local vars
+        waifuList = self.waifuLists.get(author.id)
+
+        if waifuList == None or len(waifuList["waifu_list"]) == 0: #no waifus
+            await self.bot.say("You have no waifus! Go marry some!")
+            return
+
+        waifus = waifuList["waifu_list"]  #no waifus case already handled, direct access is safe
+
+        if index < 0 or index > len(waifus) - 1: #out of bounds
+            await self.bot.say("Invalid index")
+            return
+
+        waifu = waifus[index] #display the waifu
+        displayString = author.mention + " 's waifu, " + waifu["name"] + ":\n" + waifu["img"]
+        await self.bot.say(displayString)
+        return
+
+
     async def getSafebooruLink(self, paramDict, user):
-        reqLink = "https://safebooru.donmai.us/posts/random.json"
-        reqReply = requests.get(reqLink, params=paramDict,
+        reqLink = "https://safebooru.donmai.us/posts/random.json" #base link
+        reqReply = requests.get(reqLink, params=paramDict, 
                                 auth=HTTPBasicAuth('Shallus', 'lGVqSuermFGo9ivh4zO3_vOqgC2Sr74CkUbed4QhsSA'))
-        if reqReply == None:
+        if reqReply == None: # http request error?
             return "\n(something went wrong, please try again)"
-        reqJson = reqReply.json()
+
+        reqJson = reqReply.json()                        # get the json!
         waifuName = "(name not provided)"
-        if reqJson["tag_count_character"] != 0:
+
+        if reqJson["tag_count_character"] != 0:           #character name provided
             waifuName = reqJson["tag_string_character"]
-        fileUrl = reqJson.get("large_file_url")
+
+        fileUrl = reqJson.get("large_file_url")          #check which file url is available
         if fileUrl == None:
             fileUrl = reqJson.get("file_url")
+        if fileUrl == None:
+            fileUrl = reqJson.get("preview_file_url")
+        if fileUrl == None:
+            return "\n(something went wrong, please try again)"
+
+
         self.lastWaifuRolled[user.id] = {"name": waifuName, "img": "https://safebooru.donmai.us" + fileUrl}
         return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
 
