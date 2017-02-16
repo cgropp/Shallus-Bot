@@ -37,15 +37,6 @@ except:
 ...
 
 
-# Find nth occurence of word
-def find_nth(haystack, needle, n):
-    start = haystack.find(needle)
-    while start >= 0 and n > 1:
-        start = haystack.find(needle, start + len(needle))
-        n -= 1
-    return start
-
-
 
 
 
@@ -155,6 +146,14 @@ class RedditComs:
         """Posts stuff from /r/bikinibottomtwitter."""
         memeurl = await self.getMemeUrl(ctx, "bikinibottomtwitter", 20)
         await self.bot.say("Fresh from Bikini Bottom: " + str(memeurl))
+
+        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        
+    @commands.command(pass_context=True)
+    async def wholesome(self, ctx):
+        """Posts stuff from /r/wholesomememes"""
+        memeurl = await self.getMemeUrl(ctx, "wholesomememes/top", 20)
+        await self.bot.say("Good for the soul: " + str(memeurl))
 
         await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
         
