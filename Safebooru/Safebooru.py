@@ -243,7 +243,11 @@ def checkFolders():
 class StatsTracker:
     async def updateStat(self, stattype, userid, commandname):
         datapath = "data/stats"
-        command = commandname.split(' ', 1)[0]
+
+        if(stattype == "commands"):
+            command = commandname.split(' ', 1)[0]
+        else:
+            command = commandname
 
         # Create directory if does not exist
         if not os.path.exists(datapath):
