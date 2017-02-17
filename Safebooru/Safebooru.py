@@ -34,7 +34,7 @@ class Safebooru:
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here is your waifu, " + ctx.message.author.display_name + ": " + linkName)
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
         return
 
     @commands.command(pass_context=True)
@@ -44,7 +44,7 @@ class Safebooru:
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here's your husbando, " + ctx.message.author.display_name + ": " + linkName)
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
         return        
         
     @commands.command(pass_context=True)
@@ -54,7 +54,7 @@ class Safebooru:
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here's some (SFW) yuri, " + ctx.message.author.display_name + ": " + linkName)
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
         return
         
     @commands.command(pass_context=True)
@@ -64,13 +64,15 @@ class Safebooru:
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here's some (SFW) yaoi, " + ctx.message.author.display_name + ": " + linkName)
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
         return
 
 
     @commands.command(pass_context=True)
     async def marrywaifu(self, ctx):
         """Adds the last waifu you rolled to your waifu list."""
+        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
+
         author = ctx.message.author
         waifu = self.lastWaifuRolled.get(author.id)
         authorFile = "data/safebooru/WaifuList/" + str(author.id) + ".json"
@@ -91,6 +93,9 @@ class Safebooru:
         dataIO.save_json(authorFile, self.waifuLists[author.id])
         self.lastWaifuRolled[author.id] = None
         await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!")
+
+        await StatsTracker.updateStat(self, "achievements", ctx.message.author.id, "Waifus Married")
+
         return
 
     @commands.command(pass_context=True)
@@ -121,6 +126,9 @@ class Safebooru:
     @commands.command(pass_context=True)
     async def divorcewaifu(self, ctx, index: int):
         """Removes a waifu from your waifu list. Use !divorcewaifu <list index>"""
+
+        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
+
         cooldown = 1 * 24 * 60 * 60
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
@@ -145,7 +153,7 @@ class Safebooru:
             await self.bot.say(retString)
             return
 
-        await self.bot.say("Are you sure you want to divorce" + waifuList["waifu_list"][index]["name"] + "? (yes/no)") #confirm your divorce
+        await self.bot.say("Are you sure you want to divorce " + waifuList["waifu_list"][index]["name"] + "? (yes/no)") #confirm your divorce
         answer = await self.bot.wait_for_message(timeout=15, author=author)
 
         if answer == None or not answer.content.lower().strip() == "yes": #if it's not yes, then it's no
@@ -155,7 +163,10 @@ class Safebooru:
         self.waifuLists[author.id]["waifu_list"].pop(index) #pop out of the list
         self.waifuLists[author.id]["last_delete"] = time.time()
         dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id]) #json i/o stuff
-        await self.bot.say("Waifu successfully divorced.") 
+        await self.bot.say("Waifu successfully divorced.")
+
+        await StatsTracker.updateStat(self, "achievements", ctx.message.author.id, "Waifus Divorced")
+
         return
         
         
@@ -174,7 +185,7 @@ class Safebooru:
 
     @commands.command(pass_context=True)
     async def displaywaifu(self, ctx, index: int):
-        """Show off your waifu! User !displaywaifu <list index>"""
+        """Show off your waifu! Use !displaywaifu <list index>"""
         author = ctx.message.author #set up local vars
         waifuList = self.waifuLists.get(author.id)
 
@@ -189,7 +200,7 @@ class Safebooru:
             return
 
         waifu = waifus[index] #display the waifu
-        displayString = author.mention + " 's waifu, " + waifu["name"] + ":\n" + waifu["img"]
+        displayString = author.mention + "'s waifu, " + waifu["name"] + ":\n" + waifu["img"]
         await self.bot.say(displayString)
         return
 
@@ -230,7 +241,7 @@ def checkFolders():
 
 
 class StatsTracker:
-    async def updateStat(self, userid, commandname):
+    async def updateStat(self, stattype, userid, commandname):
         datapath = "data/stats"
         command = commandname.split(' ', 1)[0]
 
@@ -254,12 +265,12 @@ class StatsTracker:
 
         # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
-        if "commands" not in userdata:
-            userdata["commands"] = {}
+        if stattype not in userdata:
+            userdata[stattype] = {}
         if command not in userdata["commands"]:
-            userdata["commands"][command] = 0
+            userdata[stattype][command] = 0
 
-        userdata["commands"][command] += 1
+        userdata[stattype][command] += 1
         dataIO.save_json(datapath + "/" + userid + ".json", userdata)
 
         return
