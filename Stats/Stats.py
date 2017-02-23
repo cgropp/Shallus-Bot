@@ -18,7 +18,7 @@ class Stats:
         userid = ctx.message.author.id
         displayname = ctx.message.author.display_name
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
         # Can't print if data invalid
         if not os.path.isfile(datapath + "/" + userid + ".json"):
@@ -51,7 +51,9 @@ class Stats:
 
 
 class StatsTracker:
-    async def updateStat(self, userid, commandname):
+    async def updateStat(self, ctx, commandname):
+        userid = ctx.message.author.id
+        name = ctx.message.author.display_name
         datapath = "data/stats"
         command = commandname.split(' ', 1)[0]
 
@@ -75,6 +77,7 @@ class StatsTracker:
 
         # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
+        userdata["username"] = name
         if "commands" not in userdata:
             userdata["commands"] = {}
         if command not in userdata["commands"]:
