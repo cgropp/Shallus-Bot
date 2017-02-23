@@ -14,10 +14,10 @@ class Stats:
     @commands.command(pass_context=True)
     async def stats(self, ctx):
         """Prints how many times you've used commands."""
+        server = ctx.message.server.id
         datapath = "data/stats/" + server
         userid = ctx.message.author.id
         displayname = ctx.message.author.display_name
-        server = ctx.message.server.id
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
