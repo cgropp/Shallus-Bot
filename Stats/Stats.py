@@ -20,7 +20,7 @@ class Stats:
         else:
             serverid = ctx.message.server.id
             
-        datapath = "data/stats/" + server
+        datapath = "data/stats/" + serverid
         userid = ctx.message.author.id
         displayname = ctx.message.author.display_name
 
