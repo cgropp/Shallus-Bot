@@ -109,7 +109,7 @@ class RedditComs:
         memeurl = await self.getMemeUrl(ctx, "anime_irl/top", 25)
         await self.bot.say("Here's a dank animeme: " + str(memeurl))
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def birb(self, ctx):
