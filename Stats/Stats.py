@@ -36,7 +36,7 @@ class Stats:
             dataIO.save_json(datapath + "/" + userid + ".json", data)
             return
 
-        output = "Here are your stats, " + ctx.message.author.display_name + ":\n\n"
+        output = "Here are your stats for commands called in this server, " + ctx.message.author.display_name + ":\n\n"
         # Print all available stats
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
 

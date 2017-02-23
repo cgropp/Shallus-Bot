@@ -34,7 +34,7 @@ class Safebooru:
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here is your waifu, " + ctx.message.author.display_name + ": " + linkName)
 
-        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return
 
     @commands.command(pass_context=True)
@@ -44,7 +44,7 @@ class Safebooru:
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here's your husbando, " + ctx.message.author.display_name + ": " + linkName)
 
-        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return        
         
     @commands.command(pass_context=True)
@@ -54,7 +54,7 @@ class Safebooru:
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here's some (SFW) yuri, " + ctx.message.author.display_name + ": " + linkName)
 
-        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return
         
     @commands.command(pass_context=True)
@@ -64,14 +64,14 @@ class Safebooru:
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here's some (SFW) yaoi, " + ctx.message.author.display_name + ": " + linkName)
 
-        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return
 
 
     @commands.command(pass_context=True)
     async def marrywaifu(self, ctx):
         """Adds the last waifu you rolled to your waifu list."""
-        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
 
         author = ctx.message.author
         waifu = self.lastWaifuRolled.get(author.id)
@@ -94,7 +94,7 @@ class Safebooru:
         self.lastWaifuRolled[author.id] = None
         await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!")
 
-        await StatsTracker.updateStat(self, "achievements", ctx.message.author.id, "Waifus Married")
+        await StatsTracker.updateStat(self, "achievements", ctx, "Waifus Married")
 
         return
 
@@ -127,7 +127,7 @@ class Safebooru:
     async def divorcewaifu(self, ctx, index: int):
         """Removes a waifu from your waifu list. Use !divorcewaifu <list index>"""
 
-        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
 
         cooldown = 1 * 24 * 60 * 60
         author = ctx.message.author
@@ -165,7 +165,7 @@ class Safebooru:
         dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id]) #json i/o stuff
         await self.bot.say("Waifu successfully divorced.")
 
-        await StatsTracker.updateStat(self, "achievements", ctx.message.author.id, "Waifus Divorced")
+        await StatsTracker.updateStat(self, "achievements", ctx, "Waifus Divorced")
 
         return
         
@@ -241,18 +241,27 @@ def checkFolders():
 
 
 class StatsTracker:
-    async def updateStat(self, stattype, userid, commandname):
-        datapath = "data/stats"
-
-        if(stattype == "commands"):
-            command = commandname.split(' ', 1)[0]
+    async def updateStat(self, stattype, ctx, commandname):
+        userid = ctx.message.author.id
+        name = ctx.message.author.display_name
+        # Check if stats is being called in a private message
+        if (ctx.message.server == None):
+            serverid = "PrivateMessage"
         else:
-            command = commandname
+            serverid = ctx.message.server.id
+        datapath = "data/stats"
+        command = commandname.split(' ', 1)[0]
 
         # Create directory if does not exist
         if not os.path.exists(datapath):
             print("Creating stats data directory...")
             os.makedirs(datapath)
+            
+        #Create directory for server if it doesn't already exist
+        datapath += "/" + serverid
+        if not os.path.exists(datapath):
+            print("Creating server data directory...")
+            os.makedirs(datapath)        
 
         # Create JSON file if does not exist or if invalid
         invalidJSON = False

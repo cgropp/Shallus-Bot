@@ -56,10 +56,17 @@ class Count:
         countFile.close()
         await self.bot.say(counter)
 
-        await StatsTracker.updateStat(self, "commands", ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
 
 class StatsTracker:
-    async def updateStat(self, stattype, userid, commandname):
+    async def updateStat(self, stattype, ctx, commandname):
+        userid = ctx.message.author.id
+        name = ctx.message.author.display_name
+        # Check if stats is being called in a private message
+        if (ctx.message.server == None):
+            serverid = "PrivateMessage"
+        else:
+            serverid = ctx.message.server.id
         datapath = "data/stats"
         command = commandname.split(' ', 1)[0]
 
@@ -67,6 +74,12 @@ class StatsTracker:
         if not os.path.exists(datapath):
             print("Creating stats data directory...")
             os.makedirs(datapath)
+            
+        #Create directory for server if it doesn't already exist
+        datapath += "/" + serverid
+        if not os.path.exists(datapath):
+            print("Creating server data directory...")
+            os.makedirs(datapath)        
 
         # Create JSON file if does not exist or if invalid
         invalidJSON = False
