@@ -14,7 +14,12 @@ class Stats:
     @commands.command(pass_context=True)
     async def stats(self, ctx):
         """Prints how many times you've used commands."""
-        server = ctx.message.server.id
+        # Check if stats is being called in a private message
+        if (ctx.message.server == None):
+            serverid = "PrivateMessage"
+        else:
+            serverid = ctx.message.server.id
+            
         datapath = "data/stats/" + server
         userid = ctx.message.author.id
         displayname = ctx.message.author.display_name
@@ -55,7 +60,11 @@ class StatsTracker:
     async def updateStat(self, ctx, commandname):
         userid = ctx.message.author.id
         name = ctx.message.author.display_name
-        server = ctx.message.server.id
+        # Check if stats is being called in a private message
+        if (ctx.message.server == None):
+            serverid = "PrivateMessage"
+        else:
+            serverid = ctx.message.server.id
         datapath = "data/stats"
         command = commandname.split(' ', 1)[0]
 
@@ -65,7 +74,7 @@ class StatsTracker:
             os.makedirs(datapath)
             
         #Create directory for server if it doesn't already exist
-        datapath += "/" + server
+        datapath += "/" + serverid
         if not os.path.exists(datapath):
             print("Creating server data directory...")
             os.makedirs(datapath)        
