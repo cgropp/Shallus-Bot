@@ -6,6 +6,7 @@ import json
 import os
 import time
 
+from sys import maxsize
 from cogs.utils.dataIO import dataIO
 from requests.auth import HTTPBasicAuth
 
@@ -67,40 +68,118 @@ class Safebooru:
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return
 
+    async def addlist(self, ctx, name=None):
+        author = ctx.message.author
+        authorFile = "data/safebooru/WaifuList/" + str(author.id) + ".json"
+        lists = self.waifuLists.get(author.id)
+
+        if lists == None:                                                                 # first list
+            self.waifuLists[author.id] = {"name": author.name, "waifu_lists": []}
+
+        if lists.get("waifu_list") != None:                                               # legacy list
+            self.handle_legacy_list(author.id)
+
+        if len(self.waifuLists[author.id]["waifu_lists"]) >= 3:                           # 3 or more lists
+            await self.bot.say("You already have 3 lists!")
+            return
+
+        listName = name
+
+        if listName == None:
+            listName = "List " + str((len(self.waifuLists[author.id]["waifu_lists"]) + 1)) # List X, where X is its number in the list
+
+        newList = {"name": listName, "list": []}
+        self.waifuLists[author.id]["waifu_lists"].append(newList)
+        dataIO.save_json(authorFile, self.waifuLists[author.id])
+        await self.bot.say(listName + " successfully added!")
+        return
 
     @commands.command(pass_context=True)
-    async def marrywaifu(self, ctx):
-        """Adds the last waifu you rolled to your waifu list."""
+    async def createlist(self, ctx, name=None):
+        """Adds another waifulist to your arsenal that you may name. Limit 3"""
+        await self.addlist(ctx, name)
+
+    @commands.command(pass_context=True)
+    async def marrywaifu(self, ctx, index=maxsize):
+        """Adds the last waifu you rolled to your either your first available waifu list or the specified list."""
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
 
-        author = ctx.message.author
+        author = ctx.message.author   
         waifu = self.lastWaifuRolled.get(author.id)
         authorFile = "data/safebooru/WaifuList/" + str(author.id) + ".json"
+
         if waifu == None:
             await self.bot.say("No character rolled this session.")
             return
+
         waifuList = self.waifuLists.get(author.id)
-        if waifuList == None:
-            self.waifuLists[author.id] = {"name": author.name, "waifu_list": [waifu]}
+
+        if waifuList == None or waifuList.get("waifu_lists") == None or waifuList.get("waifu_list") != None:
+            await self.bot.say("No waifu lists found. Making one now...")
+            await self.addlist(ctx)
+            self.waifuLists[author.id]["waifu_lists"][0]["list"].append(waifu)         # add to the first list
+            dataIO.save_json(authorFile, self.waifuLists[author.id])
+            self.lastWaifuRolled[author.id] = None                                     # can't save multiple of same waifu at same time
+            await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!\n" + waifu["name"] + " has been added to List 1.")
+            await StatsTracker.updateStat(self, "achievements", ctx, "Waifus Married")
+            return
+
+        if index != maxsize:
+
+            if index < 1 or index > len(self.waifuLists[author.id]["waifu_lists"]):  # out of range
+                await self.bot.say("Invalid index")
+                return
+
+            if len(self.waifuLists[author.id]["waifu_lists"][index - 1]["list"]) >= 5:   # list at index is full
+                await self.bot.say("Specified list is full.")
+                return
+            
+            self.waifuLists[author.id]["waifu_lists"][index - 1]["list"].append(waifu)   # success!
             dataIO.save_json(authorFile, self.waifuLists[author.id])
             self.lastWaifuRolled[author.id] = None
-            await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!")
+            listName = self.waifuLists[author.id]["waifu_lists"][index - 1]["name"]
+            await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!\n" + waifu["name"] + " has been added to " + listName + ".")
+            await StatsTracker.updateStat(self, "achievements", ctx, "Waifus Married")
             return
-        if len(waifuList["waifu_list"]) >= 5:
+
+        i = 0
+        for waifu_list in self.waifuLists[author.id]["waifu_lists"]:
+            if len(waifu_list["list"]) < 5:
+                break;
+            i += 1
+
+        if i >= len(self.waifuLists[author.id]["waifu_lists"]):
             await self.bot.say("Max number of waifus reached! Please divorce a waifu before marrying more.")
             return
-        self.waifuLists[author.id]["waifu_list"].append(waifu)
+
+        self.waifuLists[author.id]["waifu_lists"][i]["list"].append(waifu)
         dataIO.save_json(authorFile, self.waifuLists[author.id])
         self.lastWaifuRolled[author.id] = None
-        await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!")
+        listName = self.waifuLists[author.id]["waifu_lists"][i]["name"]
+        await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!\n" + waifu["name"] + "has been added to " + listName + ".")
 
         await StatsTracker.updateStat(self, "achievements", ctx, "Waifus Married")
 
         return
 
+    def handle_legacy_list(self, userId):
+        tempMap = {"name": "List 1", "list": self.waifuLists[userId].pop("waifu_list")}
+        self.waifuLists[userId]["waifu_lists"] = [tempMap]
+        return
+
     @commands.command(pass_context=True)
-    async def waifulist(self, ctx):
-        """Displays your waifu list."""
+    async def waifulist(self, ctx, index=1):
+        """
+        Displays one of your waifu lists. If no index is specified, it will default to the first one.
+        To start a waifulist, either use !waifu to roll waifus and use !marrywaifu to marry one and start a list automatically,
+        or use `!createlist <desired name>` to create a list
+
+        To remove a waifu from a list, use `!divorcewaifu <index of list> <index of waifu in list>`; however, be wary that
+        you can only divorce a waifu if it's been more than 24 hours after your previous divorce.
+
+        For more information, please use `!help <command>` to get a detailed description of a command or `!help` to get a list of Shallus-Bot commands,
+        including those involving waifulist
+        """
         author = ctx.message.author     # set up local vars
         lastRolled = self.lastWaifuRolled.get(author.id)
         fullString = ""
@@ -110,30 +189,53 @@ class Safebooru:
 
         waifuList = self.waifuLists.get(author.id)
 
-        if waifuList == None or len(waifuList["waifu_list"]) == 0:   # no waifus
+        if waifuList == None:   # no waifus
             fullString += "No waifus married yet! Go marry some waifus!"
             await self.bot.say(fullString)
             return
 
-        fullString += "Here are your waifus, " + author.mention + ": \n" #here here we go
-        i = 0                          #so we're finally here, listing waifus for you
-        for waifu in waifuList["waifu_list"]:     #if you know their names, you can join in too!
+        if waifuList.get("waifu_lists") == None:            #no waifu lists
+            if waifuList.get("waifu_list") != None:         # legacy waifu list
+                self.handle_legacy_list(author.id)
+            else:
+                fullString += "No waifus married yet! Go marry some waifus!"
+                await self.bot.say(fullString)
+                return
+
+
+        if index < 1 or index > len(waifuList["waifu_lists"]):
+            await self.bot.say("Invalid index.")
+            return
+
+        fullString += "Here are your waifus from your list " + waifuList["waifu_lists"][index - 1]["name"] + ", " + author.mention + ": \n" #here here we go
+        i = 1                          #so we're finally here, listing waifus for you
+        for waifu in waifuList["waifu_lists"][index - 1]["list"]:     #if you know their names, you can join in too!
             fullString += "[" + str(i) + "] " + waifu["name"] + "\n<" + waifu["img"].replace("_", "%5F")+ ">\n" #so put your hands together, if you wanna clap
             i = i + 1   #as we take you through, this waifu list
         await self.bot.say(fullString) #WL, WAIFU LIST
         return
 
     @commands.command(pass_context=True)
-    async def divorcewaifu(self, ctx, index: int):
-        """Removes a waifu from your waifu list. Use !divorcewaifu <list index>"""
+    async def divorcewaifu(self, ctx, listIndex: int, waifuIndex: int):
+        """Removes a waifu from your waifu list. Use !divorcewaifu <index of list> <index of waifu>"""
 
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
 
         cooldown = 1 * 24 * 60 * 60
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
+        if waifuList == None:
+            await self.bot.say("No waifus to divorce.")
+            return
 
-        if index < 0 or waifuList == None or len(waifuList["waifu_list"]) - 1 < index:
+        if waifuList.get("waifu_lists") == None:
+            if waifuList.get("waifu_list") != None:
+                self.handle_legacy_list(author.id)
+            else:
+                await self.bot.say("No waifus to divorce.")
+                return
+
+        if listIndex < 1 or waifuIndex < 1 or len(waifuList["waifu_lists"]) < listIndex or len(waifuList["waifu_lists"][listIndex - 1]["list"]) < waifuIndex:
             await self.bot.say("Invalid index")
             return
 
@@ -153,14 +255,14 @@ class Safebooru:
             await self.bot.say(retString)
             return
 
-        await self.bot.say("Are you sure you want to divorce " + waifuList["waifu_list"][index]["name"] + "? (yes/no)") #confirm your divorce
+        await self.bot.say("Are you sure you want to divorce " + waifuList["waifu_lists"][listIndex - 1]["list"][waifuIndex - 1]["name"] + "? (yes/no)") #confirm your divorce
         answer = await self.bot.wait_for_message(timeout=15, author=author)
 
         if answer == None or not answer.content.lower().strip() == "yes": #if it's not yes, then it's no
             await self.bot.say("I hope your marriage is happy.")
             return
 
-        self.waifuLists[author.id]["waifu_list"].pop(index) #pop out of the list
+        self.waifuLists[author.id]["waifu_lists"][listIndex - 1]["list"].pop(waifuIndex - 1) #pop out of the list
         self.waifuLists[author.id]["last_delete"] = time.time()
         dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id]) #json i/o stuff
         await self.bot.say("Waifu successfully divorced.")
@@ -171,35 +273,116 @@ class Safebooru:
         
         
     @commands.command(pass_context=True)
-    async def renamewaifu(self, ctx, index: int, newName: str):
-        """Renames a waifu in your waifu list. Use !renamewaifu <list index> <desired name>"""
+    async def renamewaifu(self, ctx, listIndex: int, waifuIndex: int, newName: str):
+        """Renames a waifu in your waifu list. Use !renamewaifu <index of list> <index of waifu> <desired name>"""
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
-        if index < 0 or waifuList == None or len(waifuList["waifu_list"]) - 1 < index:
+
+        if waifuList == None:
+            await self.bot.say("No waifus to rename.")
+            return
+
+        if waifuList.get("waifu_lists") == None:
+
+            if waifuList.get("waifu_list") != None:
+                self.handle_legacy_list(author.id)
+
+            else:
+                await self.bot.say("No waifus to rename.")
+                return
+
+        if listIndex < 1 or waifuIndex < 1 or len(waifuList["waifu_lists"]) < listIndex or len(waifuList["waifu_lists"][listIndex - 1]["list"]) < waifuIndex:
             await self.bot.say("Invalid index")
             return
-        self.waifuLists[author.id]["waifu_list"][index]["name"] = newName
+
+        self.waifuLists[author.id]["waifu_lists"][listIndex - 1]["list"][waifuIndex - 1]["name"] = newName
         dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
-        await self.bot.say("Renamed waifu #" + str(index) + " to " + newName + ".")
-        return       
+        await self.bot.say("Renamed waifu #" + str(waifuIndex) + " to " + newName + ".")
+        return 
 
     @commands.command(pass_context=True)
-    async def displaywaifu(self, ctx, index: int):
-        """Show off your waifu! Use !displaywaifu <list index>"""
+    async def swapwaifus(self, ctx, listIndex1: int, waifuIndex1: int, listIndex2: int, waifuIndex2: int):
+        """Swaps positions of two waifus. USe !swapwaifus <index of list of waifu1> <index of waifu1 in list> <index of list of waifu2>  <index of waifu2 in list>"""
+        author = ctx.message.author
+        waifuList = self.waifuLists.get(author.id)
+
+        if waifuList == None:
+            await self.bot.say("No waifus to swap.")
+            return
+
+        if waifuList.get("waifu_lists") == None:
+            
+            if waifuList.get("waifu_list") != None:
+                self.handle_legacy_list(author.id)
+
+            await self.bot.say("No waifus to swap")
+            return
+
+        if ( listIndex1 < 1 or waifuIndex1 < 1 or listIndex2 < 1 or waifuIndex2 < 1 or 
+             len(waifuList["waifu_lists"]) < listIndex1 or len(waifuList["waifu_lists"]) < listIndex2 or 
+             len(waifuList["waifu_lists"][listIndex1 - 1]["list"]) < waifuIndex1 or 
+             len(waifuList["waifu_lists"][listIndex2 - 1]["list"]) < waifuIndex2):
+            await self.bot.say("Invalid index.")
+            return
+
+        tempWaifu = waifuList["waifu_lists"][listIndex1 - 1]["list"][waifuIndex1 - 1]
+        self.waifuLists[author.id]["waifu_lists"][listIndex1 - 1]["list"][waifuIndex1 - 1] = waifuList["waifu_lists"][listIndex2 - 1]["list"][waifuIndex2 - 1]
+        self.waifuLists[author.id]["waifu_lists"][listIndex2 - 1]["list"][waifuIndex2 - 1] = tempWaifu
+        dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
+        await self.bot.say("Waifus successfully swapped!")
+        return
+
+    @commands.command(pass_context=True)
+    async def renamelist(self, ctx, listIndex: int, newName: str):
+        """Renames a list from your waifu lists. Use !renamelist <index of list> <desired name>"""
+        author = ctx.message.author
+        waifuList = self.waifuLists.get(author.id)
+
+        if waifuList == None:
+            await self.bot.say("No lists to rename.")
+            return
+
+        if waifuList.get("waifu_lists") == None:
+
+            if waifuList.get("waifu_list") != None:
+                self.handle_legacy_list(author.id)
+
+            else:
+                await self.bot.say("No lists to rename.")
+                return
+
+        if listIndex < 1 or listIndex > len(waifuList["waifu_lists"]):
+            await self.bot.say("Invalid index")
+            return
+        self.waifuLists[author.id]["waifu_lists"][listIndex - 1]["name"] = newName
+        dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
+        await self.bot.say("Renamed list #" + str(listIndex) + " to " + newName + ".")
+
+    @commands.command(pass_context=True)
+    async def displaywaifu(self, ctx, listIndex: int, waifuIndex: int):
+        """Show off your waifu! Use !displaywaifu <index of list> <index of waifu>"""
         author = ctx.message.author #set up local vars
         waifuList = self.waifuLists.get(author.id)
 
-        if waifuList == None or len(waifuList["waifu_list"]) == 0: #no waifus
+        if waifuList == None: #no waifus
             await self.bot.say("You have no waifus! Go marry some!")
             return
 
-        waifus = waifuList["waifu_list"]  #no waifus case already handled, direct access is safe
+        if waifuList.get("waifu_lists") == None:
+            if waifuList.get("waifu_list") != None:
+                self.handle_legacy_list(author.id)
+            else:
+                await self.bot.say("You have no waifus! Go marry some!")
+                return
 
-        if index < 0 or index > len(waifus) - 1: #out of bounds
+        waifus = waifuList["waifu_lists"]  #no waifus case already handled, direct access is safe
+
+        if listIndex < 1 or waifuIndex < 1 or listIndex > len(waifus) or waifuIndex > len(waifus[listIndex - 1]["list"]): #out of bounds
+            print("length of waifus: " + str(len(waifus)) + "\nlength of waifus[listIndex][\"list\"]: " + str(len(waifus[listIndex - 1])) + "\n")
             await self.bot.say("Invalid index")
             return
 
-        waifu = waifus[index] #display the waifu
+        waifu = waifus[listIndex - 1]["list"][waifuIndex - 1] #display the waifu
         displayString = author.mention + "'s waifu, " + waifu["name"] + ":\n" + waifu["img"]
         await self.bot.say(displayString)
         return
@@ -224,7 +407,7 @@ class Safebooru:
         if fileUrl == None:
             fileUrl = reqJson.get("preview_file_url")
         if fileUrl == None:
-            return "\n(something went wrong, please try again)"
+            return self.getSafebooruLink(self, paramDict, user)
 
 
         self.lastWaifuRolled[user.id] = {"name": waifuName, "img": "https://safebooru.donmai.us" + fileUrl}
