@@ -14,11 +14,17 @@ class Stats:
     @commands.command(pass_context=True)
     async def stats(self, ctx):
         """Prints how many times you've used commands."""
-        datapath = "data/stats"
+        # Check if stats is being called in a private message
+        if (ctx.message.server == None):
+            serverid = "PrivateMessage"
+        else:
+            serverid = ctx.message.server.id
+            
+        datapath = "data/stats/" + serverid
         userid = ctx.message.author.id
         displayname = ctx.message.author.display_name
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
         # Can't print if data invalid
         if not os.path.isfile(datapath + "/" + userid + ".json"):
@@ -30,7 +36,7 @@ class Stats:
             dataIO.save_json(datapath + "/" + userid + ".json", data)
             return
 
-        output = "Here are your stats, " + ctx.message.author.display_name + ":\n\n"
+        output = "Here are your stats for commands called in this server, " + ctx.message.author.display_name + ":\n\n"
         # Print all available stats
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
 
@@ -51,7 +57,14 @@ class Stats:
 
 
 class StatsTracker:
-    async def updateStat(self, userid, commandname):
+    async def updateStat(self, ctx, commandname):
+        userid = ctx.message.author.id
+        name = ctx.message.author.display_name
+        # Check if stats is being called in a private message
+        if (ctx.message.server == None):
+            serverid = "PrivateMessage"
+        else:
+            serverid = ctx.message.server.id
         datapath = "data/stats"
         command = commandname.split(' ', 1)[0]
 
@@ -59,7 +72,14 @@ class StatsTracker:
         if not os.path.exists(datapath):
             print("Creating stats data directory...")
             os.makedirs(datapath)
-
+            
+        #Create directory for server if it doesn't already exist
+        datapath += "/" + serverid
+        if not os.path.exists(datapath):
+            print("Creating server data directory...")
+            os.makedirs(datapath)        
+        
+        
         # Create JSON file if does not exist or if invalid
         invalidJSON = False
         if not os.path.isfile(datapath + "/" + userid + ".json"):
@@ -75,6 +95,7 @@ class StatsTracker:
 
         # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
+        userdata["username"] = name
         if "commands" not in userdata:
             userdata["commands"] = {}
         if command not in userdata["commands"]:

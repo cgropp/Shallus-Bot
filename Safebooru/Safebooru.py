@@ -75,8 +75,7 @@ class Safebooru:
 
         if lists == None:                                                                 # first list
             self.waifuLists[author.id] = {"name": author.name, "waifu_lists": []}
-
-        if lists.get("waifu_list") != None:                                               # legacy list
+        elif lists.get("waifu_list") != None:                                          # legacy list
             self.handle_legacy_list(author.id)
 
         if len(self.waifuLists[author.id]["waifu_lists"]) >= 3:                           # 3 or more lists
@@ -156,7 +155,7 @@ class Safebooru:
         dataIO.save_json(authorFile, self.waifuLists[author.id])
         self.lastWaifuRolled[author.id] = None
         listName = self.waifuLists[author.id]["waifu_lists"][i]["name"]
-        await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!\n" + waifu["name"] + "has been added to " + listName + ".")
+        await self.bot.say("Congratulations on your marriage, " + author.display_name + " and " + waifu["name"] + "!\n" + waifu["name"] + " has been added to " + listName + ".")
 
         await StatsTracker.updateStat(self, "achievements", ctx, "Waifus Married")
 

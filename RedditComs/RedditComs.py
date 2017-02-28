@@ -109,7 +109,7 @@ class RedditComs:
         memeurl = await self.getMemeUrl(ctx, "anime_irl/top", 25)
         await self.bot.say("Here's a dank animeme: " + str(memeurl))
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def birb(self, ctx):
@@ -123,7 +123,7 @@ class RedditComs:
             await self.bot.say("CHIRP CHIRP: " + str(memeurl))
         
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def cute(self, ctx):
@@ -131,7 +131,7 @@ class RedditComs:
         memeurl = await self.getMemeUrl(ctx, "aww/top", 25)
         await self.bot.say("Aww: " + str(memeurl))
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def dogmeme(self, ctx):
@@ -139,7 +139,7 @@ class RedditComs:
         memeurl = await self.getMemeUrl(ctx, "woof_irl", 25)
         await self.bot.say("Woof: " + str(memeurl))
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def sponge(self, ctx):
@@ -147,7 +147,7 @@ class RedditComs:
         memeurl = await self.getMemeUrl(ctx, "bikinibottomtwitter", 20)
         await self.bot.say("Fresh from Bikini Bottom: " + str(memeurl))
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
         
     @commands.command(pass_context=True)
     async def wholesome(self, ctx):
@@ -155,14 +155,21 @@ class RedditComs:
         memeurl = await self.getMemeUrl(ctx, "wholesomememes/top", 20)
         await self.bot.say("Good for the soul: " + str(memeurl))
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, ctx.message.content[1:])
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
         
     
 
 
 
 class StatsTracker:
-    async def updateStat(self, userid, commandname):
+    async def updateStat(self, ctx, commandname):
+        userid = ctx.message.author.id
+        name = ctx.message.author.display_name
+        # Check if stats is being called in a private message
+        if (ctx.message.server == None):
+            serverid = "PrivateMessage"
+        else:
+            serverid = ctx.message.server.id
         datapath = "data/stats"
         command = commandname.split(' ', 1)[0]
 
@@ -170,7 +177,14 @@ class StatsTracker:
         if not os.path.exists(datapath):
             print("Creating stats data directory...")
             os.makedirs(datapath)
-
+            
+        #Create directory for server if it doesn't already exist
+        datapath += "/" + serverid
+        if not os.path.exists(datapath):
+            print("Creating server data directory...")
+            os.makedirs(datapath)        
+        
+        
         # Create JSON file if does not exist or if invalid
         invalidJSON = False
         if not os.path.isfile(datapath + "/" + userid + ".json"):
@@ -186,6 +200,7 @@ class StatsTracker:
 
         # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
+        userdata["username"] = name
         if "commands" not in userdata:
             userdata["commands"] = {}
         if command not in userdata["commands"]:
@@ -199,6 +214,7 @@ class StatsTracker:
     @commands.command(pass_context=True)
     async def stats(self, ctx):
         return
+
 
 
 ...

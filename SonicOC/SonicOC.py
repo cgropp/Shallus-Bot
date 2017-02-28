@@ -65,12 +65,19 @@ class SonicOC:
         else: 
             await self.bot.say("Not enough results for " + name + " the Hedgehog")
 
-        await StatsTracker.updateStat(self, ctx.message.author.id, "sonicOC")
+        await StatsTracker.updateStat(self, ctx, "sonicOC")
 
 
 
 class StatsTracker:
-    async def updateStat(self, userid, commandname):
+    async def updateStat(self, ctx, commandname):
+        userid = ctx.message.author.id
+        name = ctx.message.author.display_name
+        # Check if stats is being called in a private message
+        if (ctx.message.server == None):
+            serverid = "PrivateMessage"
+        else:
+            serverid = ctx.message.server.id
         datapath = "data/stats"
         command = commandname.split(' ', 1)[0]
 
@@ -78,7 +85,14 @@ class StatsTracker:
         if not os.path.exists(datapath):
             print("Creating stats data directory...")
             os.makedirs(datapath)
-
+            
+        #Create directory for server if it doesn't already exist
+        datapath += "/" + serverid
+        if not os.path.exists(datapath):
+            print("Creating server data directory...")
+            os.makedirs(datapath)        
+        
+        
         # Create JSON file if does not exist or if invalid
         invalidJSON = False
         if not os.path.isfile(datapath + "/" + userid + ".json"):
@@ -94,6 +108,7 @@ class StatsTracker:
 
         # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
+        userdata["username"] = name
         if "commands" not in userdata:
             userdata["commands"] = {}
         if command not in userdata["commands"]:
