@@ -31,7 +31,11 @@ class Safebooru:
     @commands.command(pass_context=True)
     async def waifu(self, ctx):
         """Posts a random waifu from Safebooru."""
-        params = {"tags": u'1girl solo'}
+      #  if(ctx.message.author.id == "111629801206358016"):      #Syntax custom search, using my id for now
+            #await self.bot.say("Inside if statement")
+           # params = {"tags": u'loli'}         #Problem with loli tag?
+       # else:
+            params = {"tags": u'1girl solo'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here is your waifu, " + ctx.message.author.display_name + ": " + linkName)
 
@@ -78,7 +82,7 @@ class Safebooru:
         elif lists.get("waifu_list") != None:                                          # legacy list
             self.handle_legacy_list(author.id)
 
-        if len(self.waifuLists[author.id]["waifu_lists"]) >= 3:                           # 3 or more lists
+        if len(self.waifuLists[author.id]["waifu_lists"]) >= 5:                           # 5 or more lists
             await self.bot.say("You already have 3 lists!")
             return
 
@@ -382,7 +386,7 @@ class Safebooru:
             return
 
         waifu = waifus[listIndex - 1]["list"][waifuIndex - 1] #display the waifu
-        displayString = author.mention + "'s waifu, " + waifu["name"] + ":\n" + waifu["img"]
+        displayString = author.mention + "'s waifu/husbando, " + waifu["name"] + ":\n" + waifu["img"]
         await self.bot.say(displayString)
         return
 
