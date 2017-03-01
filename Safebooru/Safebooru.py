@@ -35,7 +35,7 @@ class Safebooru:
             #await self.bot.say("Inside if statement")
            # params = {"tags": u'loli'}         #Problem with loli tag?
        # else:
-            params = {"tags": u'1girl solo'}
+        params = {"tags": u'1girl solo'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here is your waifu, " + ctx.message.author.display_name + ": " + linkName)
 
