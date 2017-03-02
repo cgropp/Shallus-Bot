@@ -17,6 +17,8 @@ class Safebooru:
         self.bot = bot
         self.waifuLists = {}
         self.lastWaifuRolled = {}
+        self.LISTSIZE = 5
+        self.MAXLISTS = 5
         invalidLists = []
         for userId in os.listdir("data/safebooru/WaifuList"):
             if not dataIO.is_valid_json("data/safebooru/WaifuList/" + userId):
@@ -37,7 +39,7 @@ class Safebooru:
        # else:
         params = {"tags": u'1girl solo'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
-        await self.bot.say("Here is your waifu, " + ctx.message.author.display_name + ": " + linkName)
+        await self.bot.say("Here is your waifu, " + ctx.message.author.mention + ": " + linkName)
 
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return
@@ -47,7 +49,7 @@ class Safebooru:
         """Posts a random husbando from Safebooru."""
         params = {"tags": u'1boy solo'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
-        await self.bot.say("Here's your husbando, " + ctx.message.author.display_name + ": " + linkName)
+        await self.bot.say("Here's your husbando, " + ctx.message.author.mention + ": " + linkName)
 
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return        
@@ -57,7 +59,7 @@ class Safebooru:
         """Posts a random (SFW) yuri image from Safebooru."""
         params = {"tags": u'holding_hands yuri'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
-        await self.bot.say("Here's some (SFW) yuri, " + ctx.message.author.display_name + ": " + linkName)
+        await self.bot.say("Here's some (SFW) yuri, " + ctx.message.author.mention + ": " + linkName)
 
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return
@@ -67,7 +69,7 @@ class Safebooru:
         """Posts a random (SFW) yaoi image from Safebooru."""
         params = {"tags": u'yaoi'}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
-        await self.bot.say("Here's some (SFW) yaoi, " + ctx.message.author.display_name + ": " + linkName)
+        await self.bot.say("Here's some (SFW) yaoi, " + ctx.message.author.mention + ": " + linkName)
 
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return
@@ -82,8 +84,8 @@ class Safebooru:
         elif lists.get("waifu_list") != None:                                          # legacy list
             self.handle_legacy_list(author.id)
 
-        if len(self.waifuLists[author.id]["waifu_lists"]) >= 5:                           # 5 or more lists
-            await self.bot.say("You already have 3 lists!")
+        if len(self.waifuLists[author.id]["waifu_lists"]) >= self.MAXLISTS:                           # 5 or more lists
+            await self.bot.say("You already have " + self.MAXLISTS + " lists!")
             return
 
         listName = name
@@ -103,6 +105,66 @@ class Safebooru:
         await self.addlist(ctx, name)
 
     @commands.command(pass_context=True)
+    async def displaylastwaifu(self, ctx):
+        """Shows your last rolled waifu."""
+        author = ctx.message.author
+        waifu = self.lastWaifuRolled.get(author.id)
+        if waifu == None:
+            await self.bot.say("No waifu in queue to display.")
+            return
+        displayString = "Here is your last rolled, waifu, " + author.mention + ": " + waifu["name"] + "\n" + waifu["img"]
+        await self.bot.say(displayString)
+        return
+
+    @commands.command(pass_context=True)
+    async def movewaifu(self, ctx, listIndex1: int, waifuIndex: int, listIndex2: int):
+        """Moves a waifu from one list to another. Use !movewaifu <index of original list> <index of waifu> <index of new list>"""
+        author = ctx.message.author
+        waifuList = self.waifuLists.get(author.id)
+
+        if waifuList == None or waifuList.get("waifu_lists") == None:          # no waifus
+            await self.bot.say("No waifus to move. Go marry some waifus!")
+            return
+
+        indices = [listIndex1, waifuIndex, listIndex2]
+
+        if (any(index < 1 for index in indices) or                               
+               listIndex1 > len(waifuList["waifu_lists"]) or
+               waifuIndex > len(waifuList["waifu_lists"][listIndex1 - 1]["list"]) or
+               listIndex2 > len(waifuList["waifu_lists"])):
+            await self.bot.say("Invalid index")
+            return
+
+        if len(waifuList["waifu_lists"][listIndex2 - 1]["list"]) >= self.LISTSIZE:
+            await self.bot.say("Target list is full.")
+            return
+
+        self.waifuLists[author.id]["waifu_lists"][listIndex2 - 1]["list"].append( waifuList["waifu_lists"][listIndex1 - 1]["list"].pop(waifuIndex - 1) )
+        dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id]) #json i/o stuff
+        await self.bot.say("Waifu successfully moved!")
+
+    @commands.command(pass_context=True)
+    async def divorcecooldown(self, ctx):
+        """Displays the remaining time before you can divorce again."""
+        author = ctx.message.author
+        waifuList = self.waifuLists.get(author.id)
+        cooldown = 1 * 24 * 60 * 60
+        
+        if waifuList == None or waifuList.get("last_delete") == None:
+            await self.bot.say("You've never divorced! Good on you!")
+
+        lastDelete = waifuList["last_delete"]
+        timeRemaining = cooldown - (time.time() - float(lastDelete))       # calculate remaining time in hrs/minutes
+        if(timeRemaining <= 0):
+            await self.bot.say("Cooldown is up. You are free to divorce a waifu.")
+            return
+
+        timeInHours = timeRemaining / (60**2)
+        remainingMins = (timeInHours - int(timeInHours)) * 60
+        await self.bot.say("You have " + str(int(timeInHours)) + " hours and " + str(int(remainingMins)) + " minutes before you can divorce again.")
+        return 
+
+    @commands.command(pass_context=True)
     async def marrywaifu(self, ctx, index=maxsize):
         """Adds the last waifu you rolled to your either your first available waifu list or the specified list."""
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
@@ -119,7 +181,7 @@ class Safebooru:
 
         if waifuList == None or waifuList.get("waifu_lists") == None or waifuList.get("waifu_list") != None:
             await self.bot.say("No waifu lists found. Making one now...")
-            await self.addlist(ctx)
+            await self.addlist(ctx, None)
             self.waifuLists[author.id]["waifu_lists"][0]["list"].append(waifu)         # add to the first list
             dataIO.save_json(authorFile, self.waifuLists[author.id])
             self.lastWaifuRolled[author.id] = None                                     # can't save multiple of same waifu at same time
@@ -147,13 +209,22 @@ class Safebooru:
 
         i = 0
         for waifu_list in self.waifuLists[author.id]["waifu_lists"]:
-            if len(waifu_list["list"]) < 5:
+            if len(waifu_list["list"]) < self.LISTSIZE:
                 break;
             i += 1
 
         if i >= len(self.waifuLists[author.id]["waifu_lists"]):
-            await self.bot.say("Max number of waifus reached! Please divorce a waifu before marrying more.")
-            return
+            if i >= self.MAXLISTS:
+                await self.bot.say("Max number of waifus reached! Please divorce a waifu before marrying more.")
+                return
+            else:
+                await self.bot.say("All lists full, but you still have room for more lists. Create another list? (yes/no)")
+                answer = await self.bot.wait_for_message(timeout=15, author=author)
+                if answer == None or not answer.content.lower().strip() == "yes": #if it's not yes, then it's no
+                    await self.bot.say("Alright, the marriage is off.")
+                    return
+                await self.bot.say("Creating new list...")
+                await self.addlist(ctx, None)
 
         self.waifuLists[author.id]["waifu_lists"][i]["list"].append(waifu)
         dataIO.save_json(authorFile, self.waifuLists[author.id])
@@ -410,7 +481,7 @@ class Safebooru:
         if fileUrl == None:
             fileUrl = reqJson.get("preview_file_url")
         if fileUrl == None:
-            return self.getSafebooruLink(self, paramDict, user)
+            return self.getSafebooruLink(paramDict, user)
 
 
         self.lastWaifuRolled[user.id] = {"name": waifuName, "img": "https://safebooru.donmai.us" + fileUrl}
