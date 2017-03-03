@@ -519,21 +519,22 @@ class StatsTracker:
         else:
             serverid = ctx.message.server.id
         datapath = "data/stats"
-        
+
+        # Use only first word of command if stat is command
         command = commandname
-        if(stattype == "commands"):
+        if (stattype == "commands"):
             command = command.split(' ', 1)[0]
 
         # Create directory if does not exist
         if not os.path.exists(datapath):
             print("Creating stats data directory...")
             os.makedirs(datapath)
-            
-        #Create directory for server if it doesn't already exist
+
+        # Create directory for server if it doesn't already exist
         datapath += "/" + serverid
         if not os.path.exists(datapath):
             print("Creating server data directory...")
-            os.makedirs(datapath)        
+            os.makedirs(datapath)
 
         # Create JSON file if does not exist or if invalid
         invalidJSON = False
