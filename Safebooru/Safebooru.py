@@ -107,6 +107,8 @@ class Safebooru:
     @commands.command(pass_context=True)
     async def displaylastwaifu(self, ctx):
         """Shows your last rolled waifu."""
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
+
         author = ctx.message.author
         waifu = self.lastWaifuRolled.get(author.id)
         if waifu == None:
@@ -119,6 +121,9 @@ class Safebooru:
     @commands.command(pass_context=True)
     async def movewaifu(self, ctx, listIndex1: int, waifuIndex: int, listIndex2: int):
         """Moves a waifu from one list to another. Use !movewaifu <index of original list> <index of waifu> <index of new list>"""
+
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
+
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
 
@@ -146,6 +151,9 @@ class Safebooru:
     @commands.command(pass_context=True)
     async def divorcecooldown(self, ctx):
         """Displays the remaining time before you can divorce again."""
+
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
+
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
         cooldown = 1 * 24 * 60 * 60
@@ -254,6 +262,8 @@ class Safebooru:
         For more information, please use `!help <command>` to get a detailed description of a command or `!help` to get a list of Shallus-Bot commands,
         including those involving waifulist
         """
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
+
         author = ctx.message.author     # set up local vars
         lastRolled = self.lastWaifuRolled.get(author.id)
         fullString = ""
@@ -435,6 +445,8 @@ class Safebooru:
     @commands.command(pass_context=True)
     async def displaywaifu(self, ctx, listIndex: int, waifuIndex: int):
         """Show off your waifu! Use !displaywaifu <index of list> <index of waifu>"""
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
+
         author = ctx.message.author #set up local vars
         waifuList = self.waifuLists.get(author.id)
 
