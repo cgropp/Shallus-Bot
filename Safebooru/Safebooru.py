@@ -156,7 +156,7 @@ class Safebooru:
 
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
-        cooldown = 1 * 24 * 60 * 60
+        cooldown = 6 * 60 * 60
         
         if waifuList == None or waifuList.get("last_delete") == None:
             await self.bot.say("You've never divorced! Good on you!")
