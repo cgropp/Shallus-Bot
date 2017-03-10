@@ -101,7 +101,7 @@ class Safebooru:
 
     @commands.command(pass_context=True)
     async def createlist(self, ctx, name=None):
-        """Adds another waifulist to your arsenal that you may name. Limit 3"""
+        """Adds another waifulist to your arsenal that you may name. Limit 5"""
         await self.addlist(ctx, name)
 
     @commands.command(pass_context=True)
@@ -257,7 +257,7 @@ class Safebooru:
         or use `!createlist <desired name>` to create a list
 
         To remove a waifu from a list, use `!divorcewaifu <index of list> <index of waifu in list>`; however, be wary that
-        you can only divorce a waifu if it's been more than 24 hours after your previous divorce.
+        you can only divorce a waifu if it's been more than 6 hours after your previous divorce.
 
         For more information, please use `!help <command>` to get a detailed description of a command or `!help` to get a list of Shallus-Bot commands,
         including those involving waifulist
@@ -305,7 +305,7 @@ class Safebooru:
 
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
 
-        cooldown = 1 * 24 * 60 * 60
+        cooldown = 6 * 60 * 60
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
         if waifuList == None:
@@ -331,7 +331,7 @@ class Safebooru:
             timeInHours = timeRemaining / (60**2)
             remainingMins = (timeInHours - int(timeInHours)) * 60
 
-            retString = "It hasn't been 24 hours since your last divorce! Please wait " + str(int(timeInHours)) + " hours and " + str(int(remainingMins)) + " minutes before divorcing again."
+            retString = "It hasn't been 6 hours since your last divorce! Please wait " + str(int(timeInHours)) + " hours and " + str(int(remainingMins)) + " minutes before divorcing again."
 
             if random.randint(1, 100) == 100:      # shallus-bot is the offspring of glados
                 retString += " You monster."
