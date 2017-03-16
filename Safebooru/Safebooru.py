@@ -538,7 +538,6 @@ class Safebooru:
             return
 
         tradingWith = waifuList["trade_list"][waifuIndex - 1].get("pending_trade")
-        target = await self.bot.get_user_info(tradingWith)
 
         if tradingWith != None:
             await self.bot.say("This waifu is currently pending on a trade request. Cancel the request? (yes/no)")
@@ -577,6 +576,7 @@ class Safebooru:
 
             self.waifuLists[author.id]["trade_list"][waifuIndex - 1]["pending_trade"] = None
             dataIO.save_json("data/safebooru/WaifuList/" + str(tradingWith) + ".json", self.waifuLists[tradingWith])
+            target = await self.bot.get_user_info(tradingWith)
             await self.bot.send_message(target, "A trade request involving you has been cancelled. Please check your trade list and trade requests to verify.")
                 
 
@@ -590,7 +590,7 @@ class Safebooru:
     async def tradelist(self, ctx, user=""):
         """
         Display the trade list of someone else or yourself. Name can be supplied via mention, username, or nickname. 
-        If a name is not supplied, defaults to your own list. Use !displaytradelist <user>
+        If a name is not supplied, defaults to your own list. Use !tradelist <user>
         """
         author = ctx.message.author
         if user == "":
@@ -677,11 +677,12 @@ class Safebooru:
         dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
         dataIO.save_json("data/safebooru/WaifuList/" + str(targetUser.id) + ".json", self.waifuLists[targetUser.id])
         await self.bot.say("Request to trade " + userList["trade_list"][selfIndex - 1]["name"] + " for " + targetList["trade_list"][targetIndex - 1]["name"] + " was successfully sent.")
-        await self.bot.send_message(targetUser, "You have received a new trade request from " + author.name + ". Use !displaytradereqs to see all pending requests.")
+        await self.bot.send_message(targetUser, "You have received a new trade request from " + author.name + ". Use !tradereqs to see all pending requests.")
         return
 
     @commands.command(pass_context=True)
     async def tradereqs(self, ctx):
+        """Displays a list of your pending trade requests."""
         author = ctx.message.author
         waifuList = self.waifuLists.get(author.id)
 
