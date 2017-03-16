@@ -656,7 +656,7 @@ class Safebooru:
             await self.bot.say("Invalid index")
             return
 
-        waifus = [targetList["trade_list"][targetIndex - 1], userList["trade_list"][targetIndex - 1]]
+        waifus = [targetList["trade_list"][targetIndex - 1], userList["trade_list"][selfIndex - 1]]
 
         if any(waifu.get("pending_trade") != None for waifu in waifus):
             await self.bot.say("One or more of the specified waifus are currently pending a trade. Please wait until the trade is decided before trying again.")
