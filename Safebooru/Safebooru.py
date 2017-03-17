@@ -894,7 +894,9 @@ class Safebooru:
         return
 
 
-    async def getSafebooruLink(self, paramDict, user):
+    async def getSafebooruLink(self, paramDict, user, numTries=5):
+        if numTries == 0:
+            return "Either something went wrong multiple times or Safebooru is down for maintenance. Please try again at a later time."
         reqLink = "https://safebooru.donmai.us/posts/random.json" #base link
         reqReply = requests.get(reqLink, params=paramDict, 
                                 auth=HTTPBasicAuth('Shallus', 'lGVqSuermFGo9ivh4zO3_vOqgC2Sr74CkUbed4QhsSA'))
@@ -903,8 +905,8 @@ class Safebooru:
 
         try:
             reqJson = reqReply.json()                        # get the json!
-        except JSONDecodeError:
-            return await self.getSafebooruLink(paramDict, user)
+        except ValueError:
+            return await self.getSafebooruLink(paramDict, user, numTries - 1)
 
         waifuName = "(name not provided)"
 
@@ -917,7 +919,7 @@ class Safebooru:
         if fileUrl == None:
             fileUrl = reqJson.get("preview_file_url")
         if fileUrl == None:
-            return await self.getSafebooruLink(paramDict, user)
+            return await self.getSafebooruLink(paramDict, user, numTries - 1)
 
 
         self.lastWaifuRolled[user.id] = {"name": waifuName, "img": "https://safebooru.donmai.us" + fileUrl}
