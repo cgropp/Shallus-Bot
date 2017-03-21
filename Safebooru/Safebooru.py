@@ -622,6 +622,20 @@ class Safebooru:
                 fullString += "(pending trade)\n"
             i += 1
 
+        if len(fullString) > 2000:
+            strArray = fullString.split(">")
+            hlfString1 = ""
+            hlfString2 = ""
+            for i in range(len(strArray)):
+                if strArray[i] != "\n":
+                    if i < len(strArray) / 2:
+                        hlfString1 += strArray[i] + ">"
+                    else:
+                        hlfString2 += strArray[i] + ">"
+            await self.bot.send_message(author, hlfString1)
+            await self.bot.send_message (author, hlfString2)
+            await self.bot.say("I've pm'd you the requested tradelist.")
+            return
         await self.bot.say(fullString)
         return
 
@@ -768,6 +782,7 @@ class Safebooru:
         tempWaifu = self.waifuLists[author.id]["trade_list"].pop(targetIndex)
         self.waifuLists[author.id]["trade_list"].append(self.waifuLists[user.id]["trade_list"].pop(userIndex))
         self.waifuLists[user.id]["trade_list"].append(tempWaifu)
+        self.waifuLists[author.id]["trade_reqs"].pop(tradeIndex - 1)
         dataIO.save_json("data/safebooru/WaifuList/" + str(author.id) + ".json", self.waifuLists[author.id])
         dataIO.save_json("data/safebooru/WaifuList/" + str(user.id) + ".json", self.waifuLists[user.id])
         await self.bot.say("Successfully traded " + targetWaifu["name"] + " for " + exchangeWaifu["name"] + ".")
