@@ -1,9 +1,13 @@
 import discord 
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
-import challonge
 import json
 import os
+
+try:
+    import challonge
+except ImportError:
+    raise ImportError("No challonge module detected. Please install pychal instead of pychallonge. pychallonge is outdated.")
 
 #This class will allow users in a server to track challonge
 #tournaments. Looking up opponents and updating scores will
