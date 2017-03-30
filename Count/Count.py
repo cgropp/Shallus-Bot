@@ -96,6 +96,7 @@ class StatsTracker:
 
         # Read in JSON file, increment command count, write
         userdata = dataIO.load_json(datapath + "/" + userid + ".json")
+        userdata["username"] = name
         if stattype not in userdata:
             userdata[stattype] = {}
         if command not in userdata["commands"]:
