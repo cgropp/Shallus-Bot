@@ -48,8 +48,8 @@ class RedditComs:
         self.latestMeme = {}
         
     
-    async def getMemeUrl(self, ctx, subreddit: str, randoLimit: int):
-        """Gets meme url from subreddit."""
+    async def getRedditPost(self, ctx, subreddit: str):
+        """Gets a random post from a subreddit."""
         # Store url of subreddit
         url = ("https://reddit.com/r/" + subreddit + ".json")
 
@@ -78,8 +78,9 @@ class RedditComs:
         
         # Remove NSFW or sticked post from list if one come across, keep rerolling
         while (True):
-            memeurl = unescape(posts[randpostnum]["data"]["url"])
-            if(posts[randpostnum]["data"]["stickied"] or posts[randpostnum]["data"]["over_18"] or memeurl == self.latestMeme[command]):
+            postData = posts[randpostnum]["data"]
+            
+            if(posts[randpostnum]["data"]["stickied"] or posts[randpostnum]["data"]["over_18"] or postData["permalink"] == self.latestMeme[command]):
                 posts.pop(randpostnum)
             else:
                 break
@@ -88,72 +89,88 @@ class RedditComs:
                 return ("No new and/or SFW content found!")
 
             randpostnum = random.randrange(len(posts))
-            print(posts)
 
-        memeurl = unescape(posts[randpostnum]["data"]["url"])
+        postData = posts[randpostnum]["data"]
         
-        # Got meme, save link to prevent us from getting same meme
-        self.latestMeme[command] = memeurl
+        # Got post, save link to prevent us from getting same meme (per command)
+        self.latestMeme[command] = postData["permalink"]
         
-        # Bot print message
-        # Directly link to image
-        if 'imgur' in memeurl and "i.imgur" not in memeurl and "/a/" not in memeurl:
-            memeurl = (memeurl + ".png")
-
-        return str(memeurl)
+        return postData
      
         
     @commands.command(pass_context=True)
     async def animeme(self, ctx):
         """Posts dank animemes from /r/anime_irl."""
-        memeurl = await self.getMemeUrl(ctx, "anime_irl/top", 25)
-        await self.bot.say("Here's a dank animeme: " + str(memeurl))
+        postData = await self.getRedditPost(ctx, "anime_irl")
+        
+        embedData = discord.Embed()
+        embedData.add_field(name=postData["title"], value=postData["url"])
+        embedData.set_image(url=postData["url"])
+        await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def birb(self, ctx):
-        """Posts stuff from /r/birbs and /r/birdswitharms ."""
+        """Grabs a post from /r/birbs or /r/birdswitharms ."""
         rando5050 = random.randint(0,1)
         if (rando5050):
-            memeurl = await self.getMemeUrl(ctx, "birbs", 20)
-            await self.bot.say("Chirp chirp: " + str(memeurl))
+            postData = await self.getRedditPost(ctx, "birbs")
         else: 
-            memeurl = await self.getMemeUrl(ctx, "birdswitharms", 20)
-            await self.bot.say("CHIRP CHIRP: " + str(memeurl))
+            postData = await self.getRedditPost(ctx, "birdswitharms")
         
+        embedData = discord.Embed()
+        embedData.add_field(name=postData["title"], value=postData["url"])
+        embedData.set_image(url=postData["url"])
+        await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def cute(self, ctx):
-        """Posts stuff from /r/aww."""
-        memeurl = await self.getMemeUrl(ctx, "aww/top", 25)
-        await self.bot.say("Aww: " + str(memeurl))
+        """Grabs a post from /r/aww."""
+        postData = await self.getRedditPost(ctx, "aww")
+        
+        embedData = discord.Embed()
+        embedData.add_field(name=postData["title"], value=postData["url"])
+        embedData.set_image(url=postData["url"])
+        await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def dogmeme(self, ctx):
-        """Posts stuff from /r/woof_irl"""
-        memeurl = await self.getMemeUrl(ctx, "woof_irl", 25)
-        await self.bot.say("Woof: " + str(memeurl))
+        """Grabs a post from /r/woof_irl"""
+        postData = await self.getRedditPost(ctx, "woof_irl")
+        
+        embedData = discord.Embed()        
+        embedData.add_field(name=postData["title"], value=postData["url"])
+        embedData.set_image(url=postData["url"])
+        await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def sponge(self, ctx):
-        """Posts stuff from /r/bikinibottomtwitter."""
-        memeurl = await self.getMemeUrl(ctx, "bikinibottomtwitter", 20)
-        await self.bot.say("Fresh from Bikini Bottom: " + str(memeurl))
+        """Grabs a post from /r/bikinibottomtwitter."""
+        postData = await self.getRedditPost(ctx, "bikinibottomtwitter")
+        
+        embedData = discord.Embed()        
+        embedData.add_field(name=postData["title"], value=postData["url"])
+        embedData.set_image(url=postData["url"])
+        await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
         
     @commands.command(pass_context=True)
     async def wholesome(self, ctx):
-        """Posts stuff from /r/wholesomememes"""
-        memeurl = await self.getMemeUrl(ctx, "wholesomememes/top", 20)
-        await self.bot.say("Good for the soul: " + str(memeurl))
+        """Grabs a post from /r/wholesomememes"""
+        postData = await self.getRedditPost(ctx, "wholesomememes")
+        
+        embedData = discord.Embed()        
+        embedData.add_field(name=postData["title"], value=postData["url"])
+        embedData.set_image(url=postData["url"])
+        await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
         
