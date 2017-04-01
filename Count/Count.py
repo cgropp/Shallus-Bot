@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from random import randint
 import random
+import time
 
 import os
 from cogs.utils.dataIO import dataIO
@@ -15,13 +16,6 @@ from discord.ext import commands
 ...
 
 
-# Find nth occurence of word
-def find_nth(haystack, needle, n):
-    start = haystack.find(needle)
-    while start >= 0 and n > 1:
-        start = haystack.find(needle, start + len(needle))
-        n -= 1
-    return start
 
 
 class Count:
@@ -36,26 +30,41 @@ class Count:
             txtfile = open("data/counter/counter.txt", "w")
             txtfile.write("0")
             txtfile.close()
+            
+        #Read from file
+        countFile = open("data/counter/counter.txt", "r")
+        self.counter = int(countFile.read())
+        countFile.close()
+        #Initialize lastWrite time
+        self.lastWrite = 0
 
     @commands.command(pass_context=True)
     async def count(self, ctx):
         """Counts. The most useless command yet!"""
+        #Small chance for the count to appear
         rando = randint(0, 1000)
         if rando == (0):
             await StatsTracker.updateStat(self, "achievements", ctx.message.author.id, "Summoned The Count")
             await self.bot.say(
                 "You have been visited by The Count. He only visits once in every 1,000 counts! Congratulations! http://vignette3.wikia.nocookie.net/muppet/images/3/3c/CT-p0001-ST.jpg/revision/latest?cb=20060205225316")
+        
+        
+        #Increment count
+        self.counter = self.counter + 1
+        
+        
+        #Calculate how long it has been since last write
+        timeSinceWrite = (time.time() - self.lastWrite)
+        #If write is necessary, write to file and update lastWrite time
+        if (timeSinceWrite >= 60*1):
+            countFile = open("data/counter/counter.txt", "w")
+            countFile.write(str(self.counter))
+            countFile.close()
+            self.lastWrite = time.time()
+        #Print out current count number
+        await self.bot.say(self.counter)
 
-        counter = 0
-        countFile = open("data/counter/counter.txt", "r")
-        counter = int(countFile.read())
-        counter = counter + 1
-        countFile.close()
-        countFile = open("data/counter/counter.txt", "w")
-        countFile.write(str(counter))
-        countFile.close()
-        await self.bot.say(counter)
-
+        #Write to stats
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
 
 class StatsTracker:
