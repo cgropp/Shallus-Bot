@@ -109,6 +109,18 @@ class RedditComs:
         await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
+    
+    @commands.command(pass_context=True)
+    async def boot(self, ctx):
+        """Grabs a post from /r/boottoobig."""
+        postData = await self.getRedditPost(ctx, "boottoobig")
+        
+        embedData = discord.Embed()
+        embedData.add_field(name=postData["title"], value=postData["url"])
+        embedData.set_image(url=postData["url"])
+        await self.bot.say(embed=embedData)
+
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def birb(self, ctx):
