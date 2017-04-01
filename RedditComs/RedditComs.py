@@ -97,7 +97,15 @@ class RedditComs:
         
         return postData
      
-        
+    #Processes url to get direct link to image 
+    async def processURL(self, postURL: str):
+        directURL = postURL
+        #Temp solution to get direct image URL
+        if 'imgur' in postURL and "i.imgur" not in postURL and "/a/" not in postURL and ".jpg" not in postURL and ".png" not in postURL:
+            directURL = (postURL + ".png")
+        return directURL
+
+    
     @commands.command(pass_context=True)
     async def animeme(self, ctx):
         """Posts dank animemes from /r/anime_irl."""
@@ -105,7 +113,8 @@ class RedditComs:
         
         embedData = discord.Embed()
         embedData.add_field(name=postData["title"], value=postData["url"])
-        embedData.set_image(url=postData["url"])
+        directURL = await self.processURL(postData["url"])
+        embedData.set_image(url = directURL)
         await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
@@ -117,7 +126,8 @@ class RedditComs:
         
         embedData = discord.Embed()
         embedData.add_field(name=postData["title"], value=postData["url"])
-        embedData.set_image(url=postData["url"])
+        directURL = await self.processURL(postData["url"])
+        embedData.set_image(url = directURL)
         await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
@@ -133,7 +143,8 @@ class RedditComs:
         
         embedData = discord.Embed()
         embedData.add_field(name=postData["title"], value=postData["url"])
-        embedData.set_image(url=postData["url"])
+        directURL = await self.processURL(postData["url"])
+        embedData.set_image(url = directURL)
         await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
@@ -145,7 +156,8 @@ class RedditComs:
         
         embedData = discord.Embed()
         embedData.add_field(name=postData["title"], value=postData["url"])
-        embedData.set_image(url=postData["url"])
+        directURL = await self.processURL(postData["url"])
+        embedData.set_image(url = directURL)
         await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
@@ -157,7 +169,8 @@ class RedditComs:
         
         embedData = discord.Embed()        
         embedData.add_field(name=postData["title"], value=postData["url"])
-        embedData.set_image(url=postData["url"])
+        directURL = await self.processURL(postData["url"])
+        embedData.set_image(url = directURL)
         await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
@@ -169,7 +182,8 @@ class RedditComs:
         
         embedData = discord.Embed()        
         embedData.add_field(name=postData["title"], value=postData["url"])
-        embedData.set_image(url=postData["url"])
+        directURL = await self.processURL(postData["url"])
+        embedData.set_image(url = directURL)
         await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
@@ -181,7 +195,8 @@ class RedditComs:
         
         embedData = discord.Embed()        
         embedData.add_field(name=postData["title"], value=postData["url"])
-        embedData.set_image(url=postData["url"])
+        directURL = await self.processURL(postData["url"])
+        embedData.set_image(url = directURL)
         await self.bot.say(embed=embedData)
 
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
