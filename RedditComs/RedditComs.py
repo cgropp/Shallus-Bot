@@ -97,39 +97,63 @@ class RedditComs:
         
         return postData
      
-    #Processes url to get direct link to image 
+    # Checks if URL is an album, gif, or mp4
+    async def checkIfImage(self, postURL: str):
+        # Checks for non image
+        if 'gfycat' in postURL or ".gif" in postURL or ".mp4" in postURL or "youtu" in postURL or '/a/' in postURL:
+            return False
+        else:
+            return True
+        
+    # Processes url to get direct link to image 
     async def processURL(self, postURL: str):
         directURL = postURL
-        #Temp solution to get direct image URL
+        # Temp solution to get direct image URL
         if 'imgur' in postURL and "i.imgur" not in postURL and "/a/" not in postURL and ".jpg" not in postURL and ".png" not in postURL:
             directURL = (postURL + ".png")
         return directURL
 
+    # Embeds post from postData and posts embedded message in chat
+    async def embedPost(self, pData):
+        postData = pData
+        embedData = discord.Embed()
+        embedData.add_field(name=postData["title"], value=postData["url"])
+        directURL = await self.processURL(postData["url"])
+        embedData.set_image(url=directURL)
+        await self.bot.say(embed=embedData)
     
     @commands.command(pass_context=True)
     async def animeme(self, ctx):
         """Posts dank animemes from /r/anime_irl."""
         postData = await self.getRedditPost(ctx, "anime_irl")
+        URL = postData["url"]
+        title = postData["title"]
         
-        embedData = discord.Embed()
-        embedData.add_field(name=postData["title"], value=postData["url"])
-        directURL = await self.processURL(postData["url"])
-        embedData.set_image(url = directURL)
-        await self.bot.say(embed=embedData)
-
+        # Checks if URL is an image, embeds if it is
+        if (await self.checkIfImage(URL)):
+            await self.embedPost(pData=postData)
+            
+        # If URL is a gif/album/video, do not embed
+        else:
+            await self.bot.say(title + ": " + URL)
+            
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
     
     @commands.command(pass_context=True)
     async def boot(self, ctx):
         """Grabs a post from /r/boottoobig."""
         postData = await self.getRedditPost(ctx, "boottoobig")
+        URL = postData["url"]
+        title = postData["title"]
         
-        embedData = discord.Embed()
-        embedData.add_field(name=postData["title"], value=postData["url"])
-        directURL = await self.processURL(postData["url"])
-        embedData.set_image(url = directURL)
-        await self.bot.say(embed=embedData)
-
+        # Checks if URL is an image, embeds if it is
+        if (await self.checkIfImage(URL)):
+            await self.embedPost(pData=postData)
+            
+        # If URL is a gif/album/video, do not embed
+        else:
+            await self.bot.say(title + ": " + URL)
+            
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
@@ -141,64 +165,85 @@ class RedditComs:
         else: 
             postData = await self.getRedditPost(ctx, "birdswitharms")
         
-        embedData = discord.Embed()
-        embedData.add_field(name=postData["title"], value=postData["url"])
-        directURL = await self.processURL(postData["url"])
-        embedData.set_image(url = directURL)
-        await self.bot.say(embed=embedData)
-
+        URL = postData["url"]
+        title = postData["title"]
+        
+        # Checks if URL is an image, embeds if it is
+        if (await self.checkIfImage(URL)):
+            await self.embedPost(pData=postData)
+            
+        # If URL is a gif/album/video, do not embed
+        else:
+            await self.bot.say(title + ": " + URL)
+            
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def cute(self, ctx):
         """Grabs a post from /r/aww."""
         postData = await self.getRedditPost(ctx, "aww")
+        URL = postData["url"]
+        title = postData["title"]
         
-        embedData = discord.Embed()
-        embedData.add_field(name=postData["title"], value=postData["url"])
-        directURL = await self.processURL(postData["url"])
-        embedData.set_image(url = directURL)
-        await self.bot.say(embed=embedData)
-
+        # Checks if URL is an image, embeds if it is
+        if (await self.checkIfImage(URL)):
+            await self.embedPost(pData=postData)
+            
+        # If URL is a gif/album/video, do not embed
+        else:
+            await self.bot.say(title + ": " + URL)
+            
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def dogmeme(self, ctx):
         """Grabs a post from /r/woof_irl"""
         postData = await self.getRedditPost(ctx, "woof_irl")
+        URL = postData["url"]
+        title = postData["title"]
         
-        embedData = discord.Embed()        
-        embedData.add_field(name=postData["title"], value=postData["url"])
-        directURL = await self.processURL(postData["url"])
-        embedData.set_image(url = directURL)
-        await self.bot.say(embed=embedData)
-
+        # Checks if URL is an image, embeds if it is
+        if (await self.checkIfImage(URL)):
+            await self.embedPost(pData=postData)
+            
+        # If URL is a gif/album/video, do not embed
+        else:
+            await self.bot.say(title + ": " + URL)
+            
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
 
     @commands.command(pass_context=True)
     async def sponge(self, ctx):
         """Grabs a post from /r/bikinibottomtwitter."""
-        postData = await self.getRedditPost(ctx, "bikinibottomtwitter")
+        postData = await self.getRedditPost(ctx, "bikinibottomtwitter") 
+        URL = postData["url"]
+        title = postData["title"]
         
-        embedData = discord.Embed()        
-        embedData.add_field(name=postData["title"], value=postData["url"])
-        directURL = await self.processURL(postData["url"])
-        embedData.set_image(url = directURL)
-        await self.bot.say(embed=embedData)
-
+        # Checks if URL is an image, embeds if it is
+        if (await self.checkIfImage(URL)):
+            await self.embedPost(pData=postData)
+            
+        # If URL is a gif/album/video, do not embed
+        else:
+            await self.bot.say(title + ": " + URL)
+            
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
         
     @commands.command(pass_context=True)
     async def wholesome(self, ctx):
         """Grabs a post from /r/wholesomememes"""
-        postData = await self.getRedditPost(ctx, "wholesomememes")
+        postData = await self.getRedditPost(ctx, "wholesomememes")     
+        URL = postData["url"]
+        title = postData["title"]
         
-        embedData = discord.Embed()        
-        embedData.add_field(name=postData["title"], value=postData["url"])
-        directURL = await self.processURL(postData["url"])
-        embedData.set_image(url = directURL)
-        await self.bot.say(embed=embedData)
-
+        # Checks if URL is an image, embeds if it is
+        if (await self.checkIfImage(URL)):
+            await self.embedPost(pData=postData)
+            
+        # If URL is a gif/album/video, do not embed
+        else:
+            await self.bot.say(title + ": " + URL)
+            
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
         
     
@@ -222,7 +267,7 @@ class StatsTracker:
             print("Creating stats data directory...")
             os.makedirs(datapath)
             
-        #Create directory for server if it doesn't already exist
+        # Create directory for server if it doesn't already exist
         datapath += "/" + serverid
         if not os.path.exists(datapath):
             print("Creating server data directory...")
