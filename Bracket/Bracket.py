@@ -6,14 +6,17 @@ import os
 
 try:
     import challonge
-except ImportError:
+except:
     print("No challonge module detected. Please install pychal instead of pychallonge. pychallonge is outdated.")
+    raise
+
+leadRole = "Developer of Infinite Waifus"
 
 #This class will allow users in a server to track challonge
 #tournaments. Looking up opponents and updating scores will
 #also be supported.
 class Bracket:
-    """Begin/Stop tracking a tournament, update scores, get next opponent, get players of a match"""
+    """Begin/Stop tracking a tournament, update scores, get next opponent, get players of a match."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -22,82 +25,110 @@ class Bracket:
     
     @commands.command(pass_context=True)
     async def track(self, ctx, url):
-        """Begin tracking a Challonge tournament
-        Don't include the challonge.com part."""
+        """Begin tracking a Challonge tournament.\nDon't include the challonge.com part. Only officers can use this command."""
         serverId = ctx.message.server.id
         path = "data/bracket/" + serverId + "/tracklist.json"
         author = ctx.message.author
+
+        rolelist = author.roles
+        isOfficer = False
+
+        global leadRole
+
+        for roles in rolelist:
+            if roles.name == leadRole:
+                isOfficer = True
+
+        if not isOfficer:
+            await self.bot.say("You are not a Botter. Only Botters can use this command.")
+            return
         
-        #make sure the server has a folder for tracklist to be inside.
-        if not os.path.exists("data/bracket/" + serverId):
-            print("Creating a new directory for server " + ctx.message.server.name)
-            os.makedirs("data/bracket/" + serverId)
-        
-        #check to see if a tournament is being tracked or not.
-        if not dataIO.is_valid_json(path):
-            print("Creating new trackfile for server with id " + serverId)
-            dataIO.save_json(path, {})
         else:
-            await self.bot.say("A tournament is already being tracked. Please stop tracking your current tournament to track a new tournament.")
-            return
+        
+            #make sure the server has a folder for tracklist to be inside.
+            if not os.path.exists("data/bracket/" + serverId):
+                print("Creating a new directory for server " + ctx.message.server.name)
+                os.makedirs("data/bracket/" + serverId)
+        
+            #check to see if a tournament is being tracked or not.
+            if not dataIO.is_valid_json(path):
+                print("Creating new trackfile for server with id " + serverId)
+                dataIO.save_json(path, {})
+            else:
+                await self.bot.say("A tournament is already being tracked. Please stop tracking your current tournament to track a new tournament.")
+                return
 
-        #establish connection to challonge and get tournament data
-        userdata = dataIO.load_json("data/bracket/login.json")
-        challonge.set_credentials(userdata["username"], userdata["api_key"])
-        tourn = challonge.tournaments.show(url)
-        await self.bot.say("Found a tournament with this url called " + tourn["name"] + ". Begin tracking this? (yes/no)")
+            #establish connection to challonge and get tournament data
+            userdata = dataIO.load_json("data/bracket/login.json")
+            challonge.set_credentials(userdata["username"], userdata["api_key"])
+            tourn = challonge.tournaments.show(url)
+            await self.bot.say("Found a tournament with this url called " + tourn["name"] + ". Begin tracking this? (yes/no)")
 
-        answer = await self.bot.wait_for_message(timeout=15, author=author)
+            answer = await self.bot.wait_for_message(timeout=15, author=author)
             
-        if answer == None or not answer.content.lower().strip() == "yes": 
-            os.remove(path)
-            await self.bot.say("No action was taken. I did not track " + tourn["name"])
-            return
+            if answer == None or not answer.content.lower().strip() == "yes": 
+                os.remove(path)
+                await self.bot.say("No action was taken. I did not track " + tourn["name"] + ".")
+                return
         
-        #JSON object of matches
-        jsonMatch = []
-        item = {}
-        matches = challonge.matches.index(tourn["id"])
-        for entry in matches:
+            #JSON object of matches
+            await self.bot.say("Creating tracking file...")
+            jsonMatch = []
+            item = {}
+            matches = challonge.matches.index(tourn["id"])
+            for entry in matches:
                 item[entry["identifier"]] = entry["id"]
-        jsonMatch.append(item)
+            jsonMatch.append(item)
 
-        #JSON object of players
-        jsonPlayer = []
-        item = {}
-        players = challonge.participants.index(tourn["id"])
-        for player in players:
-            item[player["name"]] = player["id"]
-        jsonPlayer.append(item)
+            #JSON object of players
+            jsonPlayer = []
+            item = {}
+            players = challonge.participants.index(tourn["id"])
+            for player in players:
+                item[player["name"]] = player["id"]
+            jsonPlayer.append(item)
         
-        #the JSON data will contain id, url, name, and JSON objects of the matches and players.
-        info = info = {"id": tourn["id"], "url": url, "name": tourn["name"], "matches": jsonMatch, "players": jsonPlayer}
-        dataIO.save_json(path, info)
-        await self.bot.say("Tracking tournament " + tourn["name"] + ".")
+            #the JSON data will contain id, url, name, and JSON objects of the matches and players.
+            info = info = {"id": tourn["id"], "url": url, "name": tourn["name"], "matches": jsonMatch, "players": jsonPlayer}
+            dataIO.save_json(path, info)
+            await self.bot.say("Tracking tournament " + tourn["name"] + ".")
 
     @commands.command(pass_context=True)
     async def stoptrack(self, ctx):
-        """Stop tracking a tournament"""
+        """Stop tracking a tournament. Only officers can use this command."""
 
         path = "data/bracket/" + ctx.message.server.id + "/tracklist.json"
         author = ctx.message.author
 
-        #check to see if a tournament is being tracked or not. Remove tracklist file to stop tracking.
-        if dataIO.is_valid_json(path):
-            userdata = dataIO.load_json(path)
-            name = userdata["name"]
-            await self.bot.say("Currently tracking " + name + ". Are you sure you want to stop tracking this tournament? (yes/no)")
-            answer = await self.bot.wait_for_message(timeout=15, author=author)
-            
-            if answer == None or not answer.content.lower().strip() == "yes": 
-                await self.bot.say("No action was taken. I did not stop tracking " + name)
-            else:
-                os.remove(path)
-                await self.bot.say("Not longer tracking " + name + ".")
-        
-        #No track file found.
+        rolelist = author.roles
+        isOfficer = False
+        global leadRole
+
+        for roles in rolelist:
+            if roles.name == leadRole:
+                isOfficer = True
+
+        if not isOfficer:
+            await self.bot.say("You are not a Botter. Only Botters can use this command.")
+            return
         else:
-            await self.bot.say("Currently not tracking a tournament.")
+
+            #check to see if a tournament is being tracked or not. Remove tracklist file to stop tracking.
+            if dataIO.is_valid_json(path):
+                userdata = dataIO.load_json(path)
+                name = userdata["name"]
+                await self.bot.say("Currently tracking " + name + ". Are you sure you want to stop tracking this tournament? (yes/no)")
+                answer = await self.bot.wait_for_message(timeout=15, author=author)
+            
+                if answer == None or not answer.content.lower().strip() == "yes": 
+                    await self.bot.say("No action was taken. I did not stop tracking " + name)
+                else:
+                    os.remove(path)
+                    await self.bot.say("Not longer tracking " + name + ".")
+        
+            #No track file found.
+            else:
+                await self.bot.say("Currently not tracking a tournament.")
 
     @commands.command(pass_context=True)
     async def opponent(self, ctx, player):
@@ -136,16 +167,16 @@ class Bracket:
                             #There is a player 2. Just return the name of player 2.
                             if not match["player2_id"] == None:
                                 await self.bot.say(player + "'s opponent will be " + challonge.participants.show(userdata["id"], match["player2_id"])["name"])
-                                break
+                                return
                             else:
                                 
                                 #No player 2. This means that the match to determine player 2 hasn't been completed. Print conditions of previous match to determine player 2.
                                 if match["player2_is_prereq_match_loser"] == False:
                                     await self.bot.say(player + "'s opponent will be the winner of Match " + challonge.matches.show(userdata["id"], match["player2_prereq_match_id"])["identifier"])
-                                    break
+                                    return
                                 else:
                                     await self.bot.say(player + "'s opponent will be the loser of Match " + challonge.matches.show(userdata["id"], match["player2_prereq_match_id"])["identifier"])
-                                    break
+                                    return
                         
                         #Player is player 2. Return information about player 1 in this scenario.
                         else:
@@ -153,16 +184,20 @@ class Bracket:
                             #There is a player 1. Just return name of player 1.
                             if not match["player1_id"] == None:
                                 await self.bot.say(player + "'s opponent will be " + challonge.participants.show(userdata["id"], match["player1_id"])["name"])
-                                break
+                                return
                             else:
                                 
                                 #No player 1. This means that the match to determine player 2 hasn't been completed. Print conditions of previous match to determine player 2.
                                 if match["player1_is_prereq_match_loser"] == False:
                                     await self.bot.say(player + "'s opponent will be the winner of Match " + challonge.matches.show(userdata["id"], match["player1_prereq_match_id"])["identifier"])
-                                    break
+                                    return
                                 else:
                                     await self.bot.say(player + "'s opponent will be the loser of Match " + challonge.matches.show(userdata["id"], match["player1_prereq_match_id"])["identifier"])
-                                    break
+                                    return
+                
+                #if we exit the loop, then this player has already been eliminated. 
+                await self.bot.say("This player has already been eliminated")
+                return                       
 
         #No track file found.
         else:
@@ -170,7 +205,7 @@ class Bracket:
 
     @commands.command(pass_context=True)
     async def updatescore(self, ctx, player1, player2, score1, score2):
-        """Update the scores of a match"""
+        """Update the scores of an unsettled match. Use !fixscore if you want to change the scores of a match."""
 
         if player1 == player2:
             await self.bot.say("You entered the same name twice. Please enter different names.")
@@ -216,9 +251,9 @@ class Bracket:
 
                 #search through all of the matches until we find the match with the 2 players, and update the score.
                 for match in matches:
-                    
+
                     #The 2 players are not playing each other in this match. Skip to next match.
-                    if not (match["player1_id"] == player1id and match["player2_id"] == player2id) and not (match["player1_id"] == player2id and match["player2_id"] == player1id):
+                    if not (match["player1_id"] == player1id and match["player2_id"] == player2id) and not (match["player1_id"] == player2id and match["player2_id"] == player1id) or not match["winner_id"] == None:
                         continue
                     else:
                         
@@ -263,7 +298,7 @@ class Bracket:
                             winnerid = actual2id
                             loserid = actual1id
 
-                        await self.bot.say(actualPlayer1 + " vs " + actualPlayer2 + "\nThe score was " + str(actualScore1) + "_" + str(actualScore2) + ".\nThe winner is " + winner + ".\nMake sure this is correct.\nProceed with update? (yes/no)")
+                        await self.bot.say(actualPlayer1 + " vs " + actualPlayer2 + "\nThe score was " + str(actualScore1) + "-" + str(actualScore2) + ".\nThe winner is " + winner + ".\nMake sure this is correct.\nProceed with update? (yes/no)")
                         
                         answer = await self.bot.wait_for_message(timeout=15, author=author)
                         if answer == None or not answer.content.lower().strip() == "yes": 
@@ -272,25 +307,21 @@ class Bracket:
                             score_csv = str(actualScore1) + "-" + str(actualScore2)
                             print(match)
                             newmatch = {"match": match}
-                            
-                            #newmatch["loser_id"] = loserid
-                            #newmatch["winner_id"] = winnerid
-                            #newmatch["scores_csv"] = score_csv
-                            #newmatch["player1_votes"] = actualScore1
-                            #newmatch["player2_votes"] = actualScore2
-                            #newmatch["state"] = "complete"
 
-                            #results = {"match": newmatch}
+                            #make sure that this is possible. Error if trying to update a tourney that isn't yours.
+                            try:
+                                challonge.matches.update(userdata["id"], match["id"], scores_csv = score_csv, winner_id = winnerid, player1_votes = actualScore1, player2_votes = actualScore2)
+                                await self.bot.say("Score was updated.")
 
-
-                            challonge.matches.update(userdata["id"], match["id"], scores_csv = score_csv, winner_id = winnerid, player1_votes = actualScore1, player2_votes = actualScore2)
-                            await self.bot.say("Score was updated.")
+                            except urllib2.HTTPError as err:
+                                await self.bot.say("Oops. Something went wrong. Make sure " + login["username"] + " created the tournament so I can edit the score. Otherwise, try again later.")
+                                raise
                         return
 
 
 
                 #If we exit the loop, this means that the 2 players are not playing in the same match.
-                await self.bot.say("Found no match where these 2 players are fighting. Please double check the player tags.")
+                await self.bot.say("Found no match where these 2 players are fighting. Please double check the player tags. If you want to correct a match score, contact an officer to use !fixscore.")
                 return
 
 
@@ -320,7 +351,6 @@ class Bracket:
                 challonge.set_credentials(login["username"], login["api_key"])
 
                 match = challonge.matches.show(userdata["id"], userdata["matches"][0][letter])
-                print(match)
 
                 #Both players are decided in the match.
                 if not match["player1_id"] == None and not match["player2_id"] == None:
@@ -363,6 +393,84 @@ class Bracket:
         else:
             await self.bot.say("Currently not tracking a tournament.")
 
+    @commands.command(pass_context=True)
+    async def fixscore(self, ctx, matchletter, score1, score2):
+        """Change or update a match regardless of whether it has already been settled or not. Only officers can use this command."""
+      
+        path = "data/bracket/" + ctx.message.server.id + "/tracklist.json"
+        author = ctx.message.author
+
+        rolelist = author.roles
+        isOfficer = False
+        global leadRole
+
+        for roles in rolelist:
+            if roles.name == leadRole:
+                isOfficer = True
+
+        if not isOfficer:
+            await self.bot.say("You are not a Botter. Only Botters can use this command.")
+            return
+
+        else:
+
+            #check to see if a tournament is being tracked or not. Change match score if a tournament is being tracked.
+            if dataIO.is_valid_json(path):
+                userdata = dataIO.load_json(path)
+
+                #Make sure match exists by checking the matches list in the JSON file.
+                if not matchletter in userdata["matches"][0]:
+                    await self.bot.say("There is no match corresponding to this letter.")
+            
+                else:
+
+                    #attempt to convert the scores entered to integers.
+                    try:
+                        set1 = int(score1)
+                        set2 = int(score2)
+
+                        if set1 == set2:
+                            await self.bot.say("You entered the same score. Only update the score when the match has been concluded.")
+                            return
+
+                    except ValueError:
+                        await self.bot.say("Please enter integers for the scores")
+                        return
+
+                    #obtain the login credentials and login.
+                    login = dataIO.load_json("data/bracket/login.json")
+                    challonge.set_credentials(login["username"], login["api_key"])
+                
+                    match = challonge.matches.show(userdata["id"], userdata["matches"][0][matchletter])
+                    if set1 < set2:
+                        winnerid = match["player2_id"]
+                        winner = challonge.participants.show(userdata["id"], match["player2_id"])["name"]
+                    else:
+                        winnerid = match["player1_id"]
+                        winner = challonge.participants.show(userdata["id"], match["player1_id"])["name"]
+
+                    await self.bot.say(challonge.participants.show(userdata["id"], match["player1_id"])["name"] + " vs " + challonge.participants.show(userdata["id"], match["player2_id"])["name"] + "\nThe new score is " + str(score1) + "-" + str(score2) + ".\nThe winner afterwards is " + winner + ".\nPLEASE MAKE SURE THAT THIS IS ACCURATE.\nProceed with update? (yes/no)")
+
+                    answer = await self.bot.wait_for_message(timeout=15, author=author)
+                    if answer == None or not answer.content.lower().strip() == "yes": 
+                        await self.bot.say("Score was not updated.")
+                    else:
+                        score_csv = score1 + "-" + score2
+                        newmatch = {"match": match}
+
+                        #make sure that this is possible. Error if trying to update a tourney that isn't yours.
+                        try:
+                            await self.bot.say("Updating score...")
+                            challonge.matches.update(userdata["id"], match["id"], scores_csv = score_csv, winner_id = winnerid, player1_votes = score1, player2_votes = score2)
+                            await self.bot.say("Score was updated.")
+
+                        except:
+                            await self.bot.say("Oops. Something went wrong. Make sure " + login["username"] + " created the tournament so I can edit the score. Otherwise, try again later.")
+                            raise
+                            
+            #No track file found.
+            else:
+                await self.bot.say("Currently not tracking a tournament.")
 
         
 
