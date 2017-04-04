@@ -925,7 +925,7 @@ class Safebooru:
 
         waifuName = "(name not provided)"
 
-        if reqJson["tag_count_character"] != 0:           #character name provided
+        if "tag_count_character" in reqJson and reqJson["tag_count_character"] != 0: #character name provided
             waifuName = reqJson["tag_string_character"]
 
         fileUrl = reqJson.get("large_file_url")          #check which file url is available
