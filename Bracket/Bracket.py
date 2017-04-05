@@ -10,7 +10,8 @@ except:
     print("No challonge module detected. Please install pychal instead of pychallonge. pychallonge is outdated.")
     raise
 
-leadRole = "Developer of Infinite Waifus"
+leadRole1 = "Officer"
+botRole = "ShallusBot Dev"
 
 #This class will allow users in a server to track challonge
 #tournaments. Looking up opponents and updating scores will
@@ -36,11 +37,11 @@ class Bracket:
         global leadRole
 
         for roles in rolelist:
-            if roles.name == leadRole:
+            if roles.name == leadRole or roles.name == botRole:
                 isOfficer = True
 
         if not isOfficer:
-            await self.bot.say("You are not a Botter. Only Botters can use this command.")
+            await self.bot.say("You are not an officer. Only officers can use this command.")
             return
         
         else:
@@ -105,11 +106,11 @@ class Bracket:
         global leadRole
 
         for roles in rolelist:
-            if roles.name == leadRole:
+            if roles.name == leadRole or roles.name == botRole:
                 isOfficer = True
 
         if not isOfficer:
-            await self.bot.say("You are not a Botter. Only Botters can use this command.")
+            await self.bot.say("You are not an officer. Only officers can use this command.")
             return
         else:
 
@@ -405,11 +406,11 @@ class Bracket:
         global leadRole
 
         for roles in rolelist:
-            if roles.name == leadRole:
+            if roles.name == leadRole or roles.name == botRole:
                 isOfficer = True
 
         if not isOfficer:
-            await self.bot.say("You are not a Botter. Only Botters can use this command.")
+            await self.bot.say("You are not an officer. Only officers can use this command.")
             return
 
         else:
