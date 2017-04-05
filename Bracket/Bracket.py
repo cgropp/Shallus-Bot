@@ -26,7 +26,7 @@ class Bracket:
     
     @commands.command(pass_context=True)
     async def track(self, ctx, url):
-        """Begin tracking a Challonge tournament.\nDon't include the challonge.com part. Only officers can use this command."""
+        """Begin tracking a Challonge tournament.\nDon't include the challonge.com part.\nExample: If the tournament you want to track has the url challonge.com/trackme, then just type trackme.\nOnly officers can use this command."""
         serverId = ctx.message.server.id
         path = "data/bracket/" + serverId + "/tracklist.json"
         author = ctx.message.author
@@ -124,7 +124,7 @@ class Bracket:
                 answer = await self.bot.wait_for_message(timeout=15, author=author)
             
                 if answer == None or not answer.content.lower().strip() == "yes": 
-                    await self.bot.say("No action was taken. I did not stop tracking " + name)
+                    await self.bot.say("No action was taken. I did not stop tracking " + name + ".")
                 else:
                     os.remove(path)
                     await self.bot.say("Not longer tracking " + name + ".")
@@ -135,7 +135,7 @@ class Bracket:
 
     @commands.command(pass_context=True)
     async def opponent(self, ctx, player):
-        """Give the opponent of the player.\nCASE SENSITIVE!"""
+        """Output the opponent of the player entered.\nCASE SENSITIVE!\nExample: If you want to find your next opponenet, use your tag."""
         
         path = "data/bracket/" + ctx.message.server.id + "/tracklist.json"
 
@@ -207,8 +207,8 @@ class Bracket:
             await self.bot.say("Currently not tracking a tournament.")
 
     @commands.command(pass_context=True)
-    async def updatescore(self, ctx, player1, player2, score1, score2):
-        """Update the scores of an unsettled match. Use !fixscore if you want to change the scores of a match."""
+    async def reportscore(self, ctx, player1, player2, score1, score2):
+        """Report the scores of an unsettled match.\nExample: If it was john vs jim, and jim won 3 to 2, enter john, jim, 2, 3.\nUse !updatescore if you want to change the scores of a match."""
 
         if player1 == player2:
             await self.bot.say("You entered the same name twice. Please enter different names.")
@@ -324,7 +324,7 @@ class Bracket:
 
 
                 #If we exit the loop, this means that the 2 players are not playing in the same match.
-                await self.bot.say("Found no match where these 2 players are fighting. Please double check the player tags. If you want to correct a match score, contact an officer to use !fixscore.")
+                await self.bot.say("Found no match where these 2 players are fighting. Please double check the player tags. If you want to correct a match score, contact an officer to use !updatescore.")
                 return
 
 
@@ -334,7 +334,7 @@ class Bracket:
 
     @commands.command(pass_context=True)
     async def match(self, ctx, letter):
-        """List the players of a given match\nUse only capital letters."""
+        """List the players of a given match.\nUse only capital letters.\nChallonge gave us the data in letters instead of numbers.\nTo figure out what letter a match is on the website, count all of the winner matches first (down then right). Then count the loser matches in order."""
         
         path = "data/bracket/" + ctx.message.server.id + "/tracklist.json"
 
@@ -397,8 +397,8 @@ class Bracket:
             await self.bot.say("Currently not tracking a tournament.")
 
     @commands.command(pass_context=True)
-    async def fixscore(self, ctx, matchletter, score1, score2):
-        """Change or update a match regardless of whether it has already been settled or not. Only officers can use this command."""
+    async def updatescore(self, ctx, matchletter, score1, score2):
+        """Change the scores of a match, even if scores have already been entered for the match.\nOnly officers can use this command."""
       
         path = "data/bracket/" + ctx.message.server.id + "/tracklist.json"
         author = ctx.message.author
@@ -476,14 +476,27 @@ class Bracket:
             else:
                 await self.bot.say("Currently not tracking a tournament.")
 
-        
+    @commands.command(pass_context=True)
+    async def bracketurl(self, ctx):
+        """Get the url link for the current tournament being tracked"""
+
+        path = "data/bracket/" + ctx.message.server.id + "/tracklist.json"
+
+        #check to see if a tournament is being tracked or not. Search through matches if a tournament is being tracked.
+        if dataIO.is_valid_json(path):
+            userdata = dataIO.load_json(path)
+
+            await self.bot.say("The url of the current tournament being tracked is www.challonge.com/" + userdata["url"])
+
+        else:
+            await self.bot.say("Currently not tracking a tournament.")
 
 #make sure all of the correct files are created already.
 def check_files():
     f = "data/bracket/login.json"
     if not dataIO.is_valid_json(f):
         print("Creating a new login file.")
-        login = {"username": "Nemia", "api_key": "uS247Tv0LWZn0tK2MTaXkux1x7dWLq3SXxbL4ieX"}
+        login = {"username": "dummy", "api_key": "dS247Td0LWZd0tK2MTaXkud1x7dWLq3SXxbL4ieX"}
         dataIO.save_json(f, login)
 
 #make sure all of the required folders are created already.
