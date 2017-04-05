@@ -10,7 +10,7 @@ except:
     print("No challonge module detected. Please install pychal instead of pychallonge. pychallonge is outdated.")
     raise
 
-leadRole1 = "Officer"
+leadRole = "Officer"
 botRole = "ShallusBot Dev"
 
 #This class will allow users in a server to track challonge
@@ -35,6 +35,7 @@ class Bracket:
         isOfficer = False
 
         global leadRole
+        global botRole
 
         for roles in rolelist:
             if roles.name == leadRole or roles.name == botRole:
@@ -104,6 +105,7 @@ class Bracket:
         rolelist = author.roles
         isOfficer = False
         global leadRole
+        global botRole
 
         for roles in rolelist:
             if roles.name == leadRole or roles.name == botRole:
@@ -404,6 +406,7 @@ class Bracket:
         rolelist = author.roles
         isOfficer = False
         global leadRole
+        global botRole
 
         for roles in rolelist:
             if roles.name == leadRole or roles.name == botRole:
