@@ -342,6 +342,7 @@ class Bracket:
         if dataIO.is_valid_json(path):
             userdata = dataIO.load_json(path)
 
+            await self.bot.say(userdata["matches"][0])
             #Make sure match exists by checking the matches list in the JSON file.
             if not letter in userdata["matches"][0]:
                 await self.bot.say("There is no match corresponding to this letter.")
@@ -478,7 +479,7 @@ class Bracket:
 
     @commands.command(pass_context=True)
     async def bracketurl(self, ctx):
-        """Get the url link for the current tournament being tracked"""
+        """Get the url link for the current tournament being tracked."""
 
         path = "data/bracket/" + ctx.message.server.id + "/tracklist.json"
 
