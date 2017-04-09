@@ -341,8 +341,6 @@ class Bracket:
         #check to see if a tournament is being tracked or not. Search through matches if a tournament is being tracked.
         if dataIO.is_valid_json(path):
             userdata = dataIO.load_json(path)
-
-            await self.bot.say(userdata)
             #Make sure match exists by checking the matches list in the JSON file.
             if not letter in userdata["matches"][0]:
                 await self.bot.say("There is no match corresponding to this letter.")
@@ -353,6 +351,9 @@ class Bracket:
                 #obtain the login credentials and login.
                 login = dataIO.load_json("data/bracket/login.json")
                 challonge.set_credentials(login["username"], login["api_key"])
+
+                match = challonge.matches.index(userdata["id"])
+                await self.bot.say(match)
 
                 match = challonge.matches.show(userdata["id"], userdata["matches"][0][letter])
 
