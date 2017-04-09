@@ -342,7 +342,7 @@ class Bracket:
         if dataIO.is_valid_json(path):
             userdata = dataIO.load_json(path)
 
-            await self.bot.say(userdata["matches"][0])
+            await self.bot.say(userdata)
             #Make sure match exists by checking the matches list in the JSON file.
             if not letter in userdata["matches"][0]:
                 await self.bot.say("There is no match corresponding to this letter.")
