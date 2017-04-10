@@ -348,6 +348,8 @@ class Bracket:
 
                 matches = challonge.matches.index(userdata["id"])
 
+                await self.bot.say(matches)
+
                 await self.bot.say("There is no match corresponding to this letter.")
             else:
 
