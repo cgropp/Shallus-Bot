@@ -345,9 +345,9 @@ class Bracket:
             if not letter in userdata["matches"][0]:
                 login = dataIO.load_json("data/bracket/login.json")
                 challonge.set_credentials(login["username"], login["api_key"])
-                await self.bot.say(userdata["id"])
-                match = challonge.matches.index(userdata["id"])
-                await self.bot.say(match)
+
+                playerId = userdata["players"][0][player]
+                matches = challonge.matches.index(userdata["id"])
 
                 await self.bot.say("There is no match corresponding to this letter.")
             else:
