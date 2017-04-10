@@ -346,7 +346,6 @@ class Bracket:
                 login = dataIO.load_json("data/bracket/login.json")
                 challonge.set_credentials(login["username"], login["api_key"])
 
-                playerId = userdata["players"][0][player]
                 matches = challonge.matches.index(userdata["id"])
 
                 await self.bot.say("There is no match corresponding to this letter.")
