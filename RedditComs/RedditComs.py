@@ -245,7 +245,23 @@ class RedditComs:
             await self.bot.say(title + ": " + URL)
             
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
+    
+        @commands.command(pass_context=True)
+    async def hmmm(self, ctx):
+        """Grabs a post from /r/hmmm."""
+        postData = await self.getRedditPost(ctx, "hmmm")
+        URL = postData["url"]
+        title = postData["title"]
         
+        # Checks if URL is an image, embeds if it is
+        if (await self.checkIfImage(URL)):
+            await self.embedPost(pData=postData)
+            
+        # If URL is a gif/album/video, do not embed
+        else:
+            await self.bot.say(title + ": " + URL)
+            
+        await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
     
 
 
