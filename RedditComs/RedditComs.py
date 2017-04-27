@@ -246,7 +246,7 @@ class RedditComs:
             
         await StatsTracker.updateStat(self, ctx, ctx.message.content[1:])
     
-        @commands.command(pass_context=True)
+    @commands.command(pass_context=True)
     async def hmmm(self, ctx):
         """Grabs a post from /r/hmmm."""
         postData = await self.getRedditPost(ctx, "hmmm")
