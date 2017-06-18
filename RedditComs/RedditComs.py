@@ -267,7 +267,7 @@ class RedditComs:
     @commands.command(pass_context=True)
     async def BIGBOYE(self, ctx):
         """Grabs a post from /r/bigboye."""
-        postData = await self.getRedditPost(ctx, "hmmm")
+        postData = await self.getRedditPost(ctx, "bigboye")
         URL = postData["url"]
         title = postData["title"]
         
