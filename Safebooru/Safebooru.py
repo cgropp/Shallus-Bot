@@ -5,6 +5,7 @@ import random
 import json
 import os
 import time
+import configparser
 
 from sys import maxsize
 from cogs.utils.dataIO import dataIO
@@ -31,6 +32,20 @@ class Safebooru:
             print("Warning: the following files were not saved properly, and have been lost: \n")
             for user in invalidLists:
                 print(user)
+        
+        parser = configparser.ConfigParser()
+        parser.read('auth/auth.ini')
+        self.has_login = False
+        if not parser.has_section("Safebooru Login"):
+            print("No Safebooru credentials provided; api calls will be anonymous")
+        else:
+            self.loginName = parser['Safebooru Login']['Username']
+            self.loginToken = parser['Safebooru Login']['Token']
+            if self.loginName != "" and self.loginToken != "":
+                self.has_login = True
+
+    
+
 
     @commands.command(pass_context=True)
     async def waifu(self, ctx):
@@ -913,8 +928,11 @@ class Safebooru:
         if numTries == 0:
             return "Either something went wrong multiple times or Safebooru is down for maintenance. Please try again at a later time."
         reqLink = "https://safebooru.donmai.us/posts/random.json" #base link
-        reqReply = requests.get(reqLink, params=paramDict, 
-                                auth=HTTPBasicAuth('Shallus', 'lGVqSuermFGo9ivh4zO3_vOqgC2Sr74CkUbed4QhsSA'))
+        if self.has_login:
+            reqReply = requests.get(reqLink, params=paramDict, 
+                                    auth=HTTPBasicAuth(self.loginName, self.loginToken))
+        else:
+            reqReply = requests.get(reqLink, params=paramDict)
         if reqReply == None: # http request error?
             return "\n(something went wrong, please try again)"
 
