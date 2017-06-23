@@ -34,7 +34,7 @@ class Safebooru:
                 print(user)
         
         parser = configparser.ConfigParser()
-        parser.read('auth/auth.ini')
+        parser.read('data/auth/auth.ini')
         self.has_login = False
         if not parser.has_section("Safebooru Login"):
             print("No Safebooru credentials provided; api calls will be anonymous")
