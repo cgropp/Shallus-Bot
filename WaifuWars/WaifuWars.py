@@ -20,6 +20,8 @@ class WaifuWars:
         
         #Initialize empty set for users that have already voted
         self.alreadyVoted = set({})
+        #Initialize empty list for channels to announce winners to
+        self.channels = set({})
 
         parser = configparser.ConfigParser()
         parser.read('data/auth/auth.ini')
@@ -37,7 +39,7 @@ class WaifuWars:
     @commands.command(pass_context=True)
     async def waifuWar(self, ctx):
         """May the best waifu win."""
-        
+        self.channels.add(ctx.message.channel)
         #Checks if a new vote should start:
         if (await self.checkTime() == False):
             return
@@ -71,7 +73,8 @@ class WaifuWars:
         
         #Calculate winner
         if (self.waifu1votes == self.waifu2votes):
-            await self.bot.say("The waifu war resulted in a tie with " + str(self.waifu2votes) + " vote(s) for each waifu!")
+            for channel in self.channels:
+                await self.bot.send_message(channel, "The waifu war resulted in a tie with " + str(self.waifu2votes) + " vote(s) for each waifu!")
             return
 
         elif (self.waifu1votes >self.waifu2votes):
@@ -82,8 +85,12 @@ class WaifuWars:
             winner = self.linkName2
             winnerVotes = str(self.waifu2votes)
             loserVotes = str(self.waifu1votes)
-
-        await self.bot.say("The waifu war is over. " + winner + " has triumphed over her opponent with " + winnerVotes + " vote(s) vs " + loserVotes + " vote(s).")
+        
+        
+        for channel in self.channels:
+            await self.bot.send_message(channel, "The waifu war is over. " + winner + " has triumphed over her opponent with " + winnerVotes + " vote(s) vs " + loserVotes + " vote(s).")    
+        #Empty list of channels to send to
+        self.channels.clear()
      
         return
 
