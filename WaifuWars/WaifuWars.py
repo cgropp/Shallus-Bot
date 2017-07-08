@@ -58,10 +58,9 @@ class WaifuWars:
         self.linkName2 = await self.getSafebooruLink(params, ctx.message.author)
         
         #Print out waifus
-        await self.bot.say("Now starting a new waifu war. Vote for the superior waifu with !waifuvote 1 or !waifuvote 2")
-        await self.bot.say("Waifu #1: " + self.linkName)
+        await self.bot.say("Now starting a new waifu war. Vote for the superior waifu with !waifuvote 1 or !waifuvote 2 \n" + "Waifu #1: " + self.linkName + " (" + str(self.waifu1votes) + " votes)")
         #Making it two seperate print statements to ensure the previews display in correct order
-        await self.bot.say("Waifu #2: " + self.linkName2)
+        await self.bot.say("Waifu #2: " + self.linkName2 + " (" + str(self.waifu2votes) + " votes)")
         
         #Print results after time runs out
         #Don't use sleep, freezes entire bot
@@ -84,7 +83,7 @@ class WaifuWars:
             winnerVotes = str(self.waifu2votes)
             loserVotes = str(self.waifu1votes)
 
-        await self.bot.say("The waifu war is over. " + winner + "has triumphed over her opponent with " + winnerVotes + " votes vs " + loserVotes + " votes.")
+        await self.bot.say("The waifu war is over. " + winner + " has triumphed over her opponent with " + winnerVotes + " votes vs " + loserVotes + " votes.")
      
         return
 
@@ -162,8 +161,8 @@ class WaifuWars:
             self.timeRemaining = (self.duration - self.timePassed)
             #Round up to nearest second
             await self.bot.say("The current waifu war is not over yet. Please wait " + str(math.ceil(self.timeRemaining)) + " second(s) before starting a new war." )
-            await self.bot.say("The current war is Waifu #1: " + self.linkName)
-            await self.bot.say("vs. \n Waifu #2: " + self.linkName2)
+            await self.bot.say("The current war is Waifu #1: " + self.linkName + " (" + str(self.waifu1votes) + " votes)")
+            await self.bot.say("vs. \n" + "Waifu #2: " + self.linkName2 + " (" + str(self.waifu2votes) + " votes)")
             return False
 
 def setup(bot):
