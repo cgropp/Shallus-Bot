@@ -3,17 +3,21 @@ import time
 import requests
 import configparser
 import time
+import asyncio
+import math
 
 from requests.auth import HTTPBasicAuth
 from discord.ext import commands
 
-#Stuff from Safebooru cog file
 class WaifuWars:
     """Fetches images from Safebooru and allows for storing of waifus in waifulists."""
     def __init__(self, bot):
         self.bot = bot
         self.waifu1votes = 0
         self.waifu2votes = 0
+        self.startTime = 0
+        self.duration = 120
+        
         #Initialize empty set for users that have already voted
         self.alreadyVoted = set({})
 
@@ -29,52 +33,63 @@ class WaifuWars:
                 self.has_login = True
 
                 
+    #Starts the waifu war            
     @commands.command(pass_context=True)
     async def waifuWar(self, ctx):
-        """Posts a random waifu from Safebooru."""
+        """May the best waifu win."""
+        
+        #Checks if a new vote should start:
+        if (await self.checkTime() == False):
+            return
+            
+        
         #Clear the set of already voted users, as a new vote has started
         self.alreadyVoted.clear()
         self.waifu1votes = 0
         self.waifu2votes = 0
+        #Timer 
+        
+        self.startTime = time.time()
+
         
         #Receive waifu
         params = {"tags": u'1girl solo'}
-        linkName = await self.getSafebooruLink(params, ctx.message.author)
-        linkName2 = await self.getSafebooruLink(params, ctx.message.author)
+        self.linkName = await self.getSafebooruLink(params, ctx.message.author)
+        self.linkName2 = await self.getSafebooruLink(params, ctx.message.author)
         
         #Print out waifus
-        await self.bot.say("Debug statement, unfinished command: Vote for the superior waifu with !waifuvote 1 or !waifuvote 2")
-        await self.bot.say("Waifu #1: " + linkName)
-        # Making it two seperate print statements to ensure the previews display in correct order
-        await self.bot.say("Waifu #2: " + linkName2)
+        await self.bot.say("Now starting a new waifu war. Vote for the superior waifu with !waifuvote 1 or !waifuvote 2")
+        await self.bot.say("Waifu #1: " + self.linkName)
+        #Making it two seperate print statements to ensure the previews display in correct order
+        await self.bot.say("Waifu #2: " + self.linkName2)
         
-        
-        #TODO: Fix later to not stall entire bot
-        
-        # Print results after time runs out
-        # Don't use sleep, freezes entire bot
-        
-        # Calculate winner
-        # await self.bot.say("Debug statement: timer currently set to 30 seconds, will make longer later")
-        
-        
-        # if (self.waifu1votes == self.waifu2votes):
-            # await self.bot.say("The waifu war resulted in a tie with " +self.waifu2votes + " votes for each waifu!")
-            # return
+        #Print results after time runs out
+        #Don't use sleep, freezes entire bot
+        await asyncio.sleep(self.duration)
 
-        # elif (self.waifu1votes >self.waifu2votes):
-            # winner = linkName
-            # winnerVotes = self.waifu2votes
-            # loserVotes = self.waifu2votes
-        # else:
-            # winner = linkName2
-            # winnerVotes =self.waifu2votes
-            # loserVotes = self.waifu2votes
 
-        # await self.bot.say("The waifu war is over. " + winner + "has triumphed over her opponent with " + winnerVotes + " votes vs " + loserVotes + " votes.")
+        #await self.bot.say("Debug statement: timer currently set to 20 seconds, will make longer later")
+        
+        #Calculate winner
+        if (self.waifu1votes == self.waifu2votes):
+            await self.bot.say("The waifu war resulted in a tie with " + str(self.waifu2votes) + " votes for each waifu!")
+            return
+
+        elif (self.waifu1votes >self.waifu2votes):
+            winner = self.linkName
+            winnerVotes = str(self.waifu1votes)
+            loserVotes = str(self.waifu2votes)
+        else:
+            winner = self.linkName2
+            winnerVotes = str(self.waifu2votes)
+            loserVotes = str(self.waifu1votes)
+
+        await self.bot.say("The waifu war is over. " + winner + "has triumphed over her opponent with " + winnerVotes + " votes vs " + loserVotes + " votes.")
      
         return
 
+        
+    #Allows for voting
     @commands.command(pass_context=True)
     async def waifuvote(self, ctx, voteNum: int):
         """Keeps track of votes."""
@@ -99,7 +114,8 @@ class WaifuWars:
             await self.bot.say("Invalid waifu number. Please use !waifuvote 1 or !waifuvote 2")
      
         return    
-        
+    
+    #Safebooru file's waifu fetching code
     async def getSafebooruLink(self, paramDict, user, numTries=5):
         if numTries == 0:
             return "Either something went wrong multiple times or Safebooru is down for maintenance. Please try again at a later time."
@@ -132,7 +148,23 @@ class WaifuWars:
 
         return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
     
-
+    #Checks if another waifuWar should be started.
+    #@commands.command(pass_context=True)
+    async def checkTime(self):
+        self.currentTime = time.time()
+        self.timePassed = self.currentTime - self.startTime
+        #Check if another war should be started (No war started yet or duration has passed since last war)
+        if (self.startTime == 0) or (self.timePassed >= self.duration):
+            #await self.bot.say("Debug message, remove later: A sufficient amount of time has passed")
+            return True
+            
+        else: 
+            self.timeRemaining = (self.duration - self.timePassed)
+            #Round up to nearest second
+            await self.bot.say("The current waifu war is not over yet. Please wait " + str(math.ceil(self.timeRemaining)) + " second(s) before starting a new war." )
+            await self.bot.say("The current war is Waifu #1: " + self.linkName)
+            await self.bot.say("vs. \n Waifu #2: " + self.linkName2)
+            return False
 
 def setup(bot):
     bot.add_cog(WaifuWars(bot))
