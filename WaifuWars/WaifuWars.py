@@ -71,7 +71,7 @@ class WaifuWars:
         
         #Calculate winner
         if (self.waifu1votes == self.waifu2votes):
-            await self.bot.say("The waifu war resulted in a tie with " + str(self.waifu2votes) + " votes for each waifu!")
+            await self.bot.say("The waifu war resulted in a tie with " + str(self.waifu2votes) + " vote(s) for each waifu!")
             return
 
         elif (self.waifu1votes >self.waifu2votes):
