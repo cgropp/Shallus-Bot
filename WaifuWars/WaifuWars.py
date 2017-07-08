@@ -105,16 +105,18 @@ class WaifuWars:
         if (userid in self.alreadyVoted):
             await self.bot.say("You've already voted for a waifu, " + ctx.message.author.mention + "! Please wait until the next vote starts before voting again.")
             return
-        #If they haven't voted, add their id to the set
-        else:
-            self.alreadyVoted.add(userid)
+
+
         
         #Allows user to vote for waifu #1 or waifu #2
         if (voteNum == 1):
             self.waifu1votes += 1
+            #If they haven't voted, add their id to the set
+            self.alreadyVoted.add(userid)
             await self.bot.say("You have voted for waifu #" + str(voteNum) + ", " + ctx.message.author.name +". This waifu now has " + str(self.waifu1votes) + " vote(s)." )
         elif (voteNum == 2):
             self.waifu2votes += 1
+            self.alreadyVoted.add(userid)
             await self.bot.say("You have voted for waifu #" + str(voteNum) + ", " + ctx.message.author.name +". This waifu now has " + str(self.waifu2votes) + " vote(s)." )
         else:
             await self.bot.say("Invalid waifu number. Please use !waifuvote 1 or !waifuvote 2")
