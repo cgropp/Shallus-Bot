@@ -83,7 +83,7 @@ class WaifuWars:
             winnerVotes = str(self.waifu2votes)
             loserVotes = str(self.waifu1votes)
 
-        await self.bot.say("The waifu war is over. " + winner + " has triumphed over her opponent with " + winnerVotes + " votes vs " + loserVotes + " votes.")
+        await self.bot.say("The waifu war is over. " + winner + " has triumphed over her opponent with " + winnerVotes + " vote(s) vs " + loserVotes + " vote(s).")
      
         return
 
