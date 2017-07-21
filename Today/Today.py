@@ -58,6 +58,8 @@ class Today:
         "http://i3.kym-cdn.com/photos/images/newsfeed/000/734/437/c40.png",
         "http://i3.kym-cdn.com/photos/images/newsfeed/000/960/065/2a9.png"]
         
+        self.saturday = ["https://68.media.tumblr.com/6e6b294e90f61410728b2ff7ade7e50d/tumblr_otgepffHyb1sjq4u4o1_540.png"]
+        
 
     
     @commands.command(pass_context=True)
@@ -96,7 +98,7 @@ class Today:
             output = current.strftime("Today is %A. The date is %B %d, %Y, and the time is currently %X.%f")[:-3] + "."
             
             self.timesDefaultCalled += 1
-            if(self.timesDefaultCalled >= 5):
+            if(self.timesDefaultCalled >= 4):
                 output += "\nThis bot is in need of more today memes. Please send some using !contact :money_with_wings:"
             
             await self.bot.say(output)
