@@ -93,8 +93,8 @@ class Today:
         
 
         
-        
-        if not self.links:
+        # Print default message with a 5% chance, or if there are no memes left for today
+        if not self.links or random.randint(0, 19) == 0:
             output = current.strftime("Today is %A. The date is %B %d, %Y, and the time is currently %X.%f")[:-3] + "."
             
             self.timesDefaultCalled += 1
