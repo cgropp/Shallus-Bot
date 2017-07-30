@@ -5,6 +5,8 @@ import configparser
 import time
 import asyncio
 import math
+import aiohttp
+import atexit
 
 from requests.auth import HTTPBasicAuth
 from discord.ext import commands
@@ -23,16 +25,22 @@ class WaifuWars:
         #Initialize empty list for channels to announce winners to
         self.channels = set({})
 
+        #Login stuff from Safebooru
         parser = configparser.ConfigParser()
         parser.read('data/auth/auth.ini')
         self.has_login = False
         if not parser.has_section("Safebooru Login"):
+            self.session = aiohttp.ClientSession()
             print("No Safebooru credentials provided; api calls will be anonymous")
         else:
             self.loginName = parser['Safebooru Login']['Username']
             self.loginToken = parser['Safebooru Login']['Token']
             if self.loginName != "" and self.loginToken != "":
+                self.session = aiohttp.ClientSession(auth=aiohttp.BasicAuth(self.loginName, self.loginToken))
                 self.has_login = True
+            else:
+                self.session = aiohttp.ClientSession()
+            atexit.register(self.closeConnection)
 
                 
     #Starts the waifu war            
@@ -125,34 +133,36 @@ class WaifuWars:
     
     #Safebooru file's waifu fetching code
     async def getSafebooruLink(self, paramDict, user, numTries=5):
+
         if numTries == 0:
             return "Either something went wrong multiple times or Safebooru is down for maintenance. Please try again at a later time."
+
         reqLink = "https://safebooru.donmai.us/posts/random.json" #base link
-        if self.has_login:
-            reqReply = requests.get(reqLink, params=paramDict, 
-                                    auth=HTTPBasicAuth(self.loginName, self.loginToken))
-        else:
-            reqReply = requests.get(reqLink, params=paramDict)
-        if reqReply == None: # http request error?
-            return "\n(something went wrong, please try again)"
+        async with self.session.get(reqLink, params=paramDict) as reqReply:    #request
 
-        try:
-            reqJson = reqReply.json()                        # get the json!
-        except ValueError:
-            return await self.getSafebooruLink(paramDict, user, numTries - 1)
+            if reqReply == None:                                      # http request error?
+                return "\n(something went wrong, please try again)"
+            if reqReply.status != 200:                                #request didn't go through
+                return "\n(error sending the request, please try again later)"
 
-        waifuName = "(name not provided)"
+            try:
+                reqJson = await reqReply.json()                        # get the json!
+            except ValueError:
+                return await self.getSafebooruLink(paramDict, user, numTries - 1)
 
-        if "tag_count_character" in reqJson and reqJson["tag_count_character"] != 0: #character name provided
-            waifuName = reqJson["tag_string_character"]
+            waifuName = "(name not provided)"                  #default character name assuming name isn't provided
 
-        fileUrl = reqJson.get("large_file_url")          #check which file url is available
-        if fileUrl == None:
-            fileUrl = reqJson.get("file_url")
-        if fileUrl == None:
-            fileUrl = reqJson.get("preview_file_url")
-        if fileUrl == None:
-            return await self.getSafebooruLink(paramDict, user, numTries - 1)
+            if "tag_count_character" in reqJson and reqJson["tag_count_character"] != 0: #character name provided
+                waifuName = reqJson["tag_string_character"]
+
+            fileUrl = reqJson.get("large_file_url")          #check which file url is available
+            if fileUrl == None:
+                fileUrl = reqJson.get("file_url")
+            if fileUrl == None:
+                fileUrl = reqJson.get("preview_file_url")
+            if fileUrl == None:
+                return await self.getSafebooruLink(paramDict, user, numTries - 1)  #none are available, try again
+
 
         return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
     
@@ -173,6 +183,8 @@ class WaifuWars:
             await self.bot.say("The current war is Waifu #1: " + self.linkName + " (" + str(self.waifu1votes) + " votes)")
             await self.bot.say("vs. \n" + "Waifu #2: " + self.linkName2 + " (" + str(self.waifu2votes) + " votes)")
             return False
-
+            
+    async def closeConnection():
+        await self.session.close()
 def setup(bot):
     bot.add_cog(WaifuWars(bot))
