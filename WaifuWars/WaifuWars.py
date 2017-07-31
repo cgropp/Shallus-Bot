@@ -83,6 +83,7 @@ class WaifuWars:
         if (self.waifu1votes == self.waifu2votes):
             for channel in self.channels:
                 await self.bot.send_message(channel, "The waifu war resulted in a tie with " + str(self.waifu2votes) + " vote(s) for each waifu!")
+            self.channels.clear()
             return
 
         elif (self.waifu1votes >self.waifu2votes):
