@@ -38,7 +38,9 @@ class Today:
         "http://68.media.tumblr.com/ffb71c98924901b95161e31e9703a4d1/tumblr_ose8nquL7w1sjq4u4o1_1280.png",
         "https://68.media.tumblr.com/53f283d312eaf6d89ac6b5fecf53d2fa/tumblr_nfa0u9e9er1qcwuqfo1_1280.png",
         "http://kcgreendotcom.com/littlecomis/002/comis2/guts-21.jpg",
-        "https://www.youtube.com/watch?v=G8Vf5xbtGN8"]
+        "https://www.youtube.com/watch?v=G8Vf5xbtGN8",
+        "https://i.redd.it/169cmovuz8dz.jpg",
+        "https://i.redd.it/7yk85eiqh8dz.jpg"]
         
         self.wednesday = ["http://68.media.tumblr.com/500002c984aa2093eb79995e0bd27777/tumblr_ngdcgxRkT91tdpzi3o1_1280.jpg",
         "http://68.media.tumblr.com/8d64a724e409c17a8a7c5dfab91a3f19/tumblr_o5yqv7Z2aq1rf77lbo1_1280.jpg",
@@ -48,10 +50,17 @@ class Today:
         "http://i1.kym-cdn.com/photos/images/original/001/094/131/aef.png",
         "http://i1.kym-cdn.com/photos/images/newsfeed/001/091/647/32c.png",
         "http://i2.kym-cdn.com/photos/images/newsfeed/001/179/901/bab.png",
-        "https://68.media.tumblr.com/179995a5e9b26b23a5f03f0f37240327/tumblr_ose9k15lIs1sjq4u4o1_540.png"]
+        "https://68.media.tumblr.com/179995a5e9b26b23a5f03f0f37240327/tumblr_ose9k15lIs1sjq4u4o1_540.png",
+        "https://i.redd.it/4ns1uw7c09dz.jpg",
+        "https://i.imgur.com/YfktTOP.png",
+        "https://i.redd.it/gh7nu1kiy8dz.png",
+        "https://i.redd.it/1k4tdbjkibdz.jpg",
+        "https://i.imgur.com/UPEzhnb.jpg",
+        "https://i.redd.it/nlmonp6cp8dz.jpg"]
         
         self.thursday = ["http://i0.kym-cdn.com/photos/images/newsfeed/001/091/402/9d6.jpg",
-        "https://68.media.tumblr.com/ae1d7123d7ff24cb06bf658663b80e43/tumblr_ose2osWwgB1sjq4u4o1_540.png"]
+        "https://68.media.tumblr.com/ae1d7123d7ff24cb06bf658663b80e43/tumblr_ose2osWwgB1sjq4u4o1_540.png",
+        "https://i.redd.it/6co99kbnkddz.png"]
         
         self.friday = ["https://68.media.tumblr.com/3f1d45c99115c357f0ca3a890701cfea/tumblr_ose2osWwgB1sjq4u4o3_1280.png",
         "https://twitter.com/nintendoamerica/status/698267084367785986",
