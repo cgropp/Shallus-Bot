@@ -65,7 +65,8 @@ class Today:
         self.friday = ["https://68.media.tumblr.com/3f1d45c99115c357f0ca3a890701cfea/tumblr_ose2osWwgB1sjq4u4o3_1280.png",
         "https://twitter.com/nintendoamerica/status/698267084367785986",
         "http://i3.kym-cdn.com/photos/images/newsfeed/000/734/437/c40.png",
-        "http://i3.kym-cdn.com/photos/images/newsfeed/000/960/065/2a9.png"]
+        "http://i3.kym-cdn.com/photos/images/newsfeed/000/960/065/2a9.png",
+        "https://collegecourier.files.wordpress.com/2011/03/today-it-is-friday.jpg"]
         
         self.saturday = ["https://68.media.tumblr.com/6e6b294e90f61410728b2ff7ade7e50d/tumblr_otgepffHyb1sjq4u4o1_540.png"]
         
