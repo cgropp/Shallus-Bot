@@ -36,7 +36,9 @@ class Pepe:
     async def pepe(self, name: str):
         """Posts rare pepes. Use command by typing !pepe <term> . Made by Shallus."""
 
-     
+		if (name == big):
+			await self.bot.say("oco no")
+			return
 		
         url = 'https://www.google.com/search?tbm=isch&q=' + name + '+pepe'
 
