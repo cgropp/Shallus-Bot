@@ -967,7 +967,7 @@ class Safebooru:
 		if ("raikou" not in fileURL):
 			return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
 		else:
-			return return waifuName + "\n" + fileUrl
+			return waifuName + "\n" + fileUrl
 
     async def closeConnection():
         await self.session.close()
