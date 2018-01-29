@@ -964,7 +964,7 @@ class Safebooru:
 
 
         self.lastWaifuRolled[user.id] = {"name": waifuName, "img": "https://safebooru.donmai.us" + fileUrl}     # save as a "roll" for the waifulist
-        if "raikou" not in fileURL:
+        if "raikou" not in fileUrl:
             return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
         else:
             return waifuName + "\n" + fileUrl
