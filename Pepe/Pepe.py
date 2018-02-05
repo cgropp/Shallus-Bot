@@ -35,7 +35,7 @@ class Pepe:
     def __init__(self, bot):
         self.bot = bot
         self.censorListPath = "data/pepe/censorList.json"
-    self.censoredList = {}
+        self.censoredList = {}
         if not os.path.exists(self.censorListPath):
             print("Censor list for Pepe does not exist. Creating list...")
             dataIO.save_json(self.censorListPath, self.censoredList)
