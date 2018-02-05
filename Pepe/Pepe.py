@@ -75,10 +75,10 @@ class Pepe:
             rando = randint(0,5)
             #await self.bot.say(len(imageList)) #Debug statement
             img = imageList[rando]
-            if img in self.censorList:
-                await self.bot.say(self.censorList[img])
+            if img in self.censoredList:
+                await self.bot.say(self.censoredList[img])
                 return
-            await self.bot.say("Here's a rare " + name + " Pepe: " + imageList[rando])
+            await self.bot.say("Here's a rare " + name + " Pepe: " + img)
         else: 
             await self.bot.say("Not enough results for " + name + " Pepe")
 
@@ -88,7 +88,7 @@ class Pepe:
         botRole = "ShallusBot Dev"
         roleList = ctx.author.roles
         if leadRole or botRole:
-            self.censorList[url] = offStr
+            self.censoredList[url] = offStr
             await self.bot.say("URL will now be censored.")
 
   
