@@ -14,7 +14,7 @@ import aiohttp
 
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
-from os import path, listdir
+import os
 
 
 ...
@@ -35,13 +35,12 @@ class Pepe:
     def __init__(self, bot):
         self.bot = bot
         self.censorListPath = "data/pepe/censorList.json"
-        if not path.exists(self.censorListPath):
+	self.censoredList = {}
+        if not os.path.exists(self.censorListPath):
             print("Censor list for Pepe does not exist. Creating list...")
-            self.censoredList = {}
             dataIO.save_json(self.censorListPath, self.censoredList)
         elif not dataIO.is_valid_json(self.censorListPath):
             print("Censor list corrupted. Creating a new one...")
-            self.censoredList = {}
             dataIO.save_json(self.censorListPath, self.censoredList)
         else:
             self.censoredList = dataIO.load_json(self.censorListPath)
@@ -83,7 +82,7 @@ class Pepe:
             await self.bot.say("Not enough results for " + name + " Pepe")
 
     @commands.command(pass_context=True)
-    async def pepeCensor(self, ctx, url: str, offStr = "The provided url has been censored."):
+    async def pepeCensor(self, ctx, url, offStr = "The provided url has been censored."):
         leadRole = "Officer"
         botRole = "ShallusBot Dev"
         roleList = ctx.author.roles
