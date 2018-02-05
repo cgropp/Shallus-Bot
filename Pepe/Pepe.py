@@ -35,7 +35,7 @@ class Pepe:
     def __init__(self, bot):
         self.bot = bot
         self.censorListPath = "data/pepe/censorList.json"
-	self.censoredList = {}
+    self.censoredList = {}
         if not os.path.exists(self.censorListPath):
             print("Censor list for Pepe does not exist. Creating list...")
             dataIO.save_json(self.censorListPath, self.censoredList)
@@ -53,10 +53,10 @@ class Pepe:
         #if (name == "big"):
         #    await self.bot.say("oco no")
         #    return
-		
+        
         url = 'https://www.google.com/search?tbm=isch&q=' + name + '+pepe'
 
-	# page = open('tower.html', 'r').read()
+    # page = open('tower.html', 'r').read()
         count = 0
         page = requests.get(url).text
         imageList = []
