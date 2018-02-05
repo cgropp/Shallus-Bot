@@ -13,6 +13,9 @@ import aiohttp
 ...
 
 from discord.ext import commands
+from cogs.utils.dataIO import dataIO
+from os import path, listdir
+
 
 ...
 
@@ -31,14 +34,26 @@ class Pepe:
 
     def __init__(self, bot):
         self.bot = bot
+        self.censorListPath = "data/pepe/censorList.json"
+        if not path.exists(self.censorListPath):
+            print("Censor list for Pepe does not exist. Creating list...")
+            self.censoredList = {}
+            dataIO.save_json(self.censorListPath, self.censoredList)
+        elif not dataIO.is_valid_json(self.censorListPath):
+            print("Censor list corrupted. Creating a new one...")
+            self.censoredList = {}
+            dataIO.save_json(self.censorListPath, self.censoredList)
+        else:
+            self.censoredList = dataIO.load_json(self.censorListPath)
+
     
     @commands.command()
     async def pepe(self, name: str):
         """Posts rare pepes. Use command by typing !pepe <term> . Made by Shallus."""
 
-        if (name == "big"):
-            await self.bot.say("oco no")
-            return
+        #if (name == "big"):
+        #    await self.bot.say("oco no")
+        #    return
 		
         url = 'https://www.google.com/search?tbm=isch&q=' + name + '+pepe'
 
@@ -59,9 +74,23 @@ class Pepe:
         if len(imageList) > 6: 
             rando = randint(0,5)
             #await self.bot.say(len(imageList)) #Debug statement
+            img = imageList[rando]
+            if img in self.censorList:
+                await self.bot.say(self.censorList[img])
+                return
             await self.bot.say("Here's a rare " + name + " Pepe: " + imageList[rando])
         else: 
             await self.bot.say("Not enough results for " + name + " Pepe")
+
+    @commands.command(pass_context=True)
+    async def pepeCensor(self, ctx, url: str, offStr = "The provided url has been censored."):
+        leadRole = "Officer"
+        botRole = "ShallusBot Dev"
+        roleList = ctx.author.roles
+        if leadRole or botRole:
+            self.censorList[url] = offStr
+            await self.bot.say("URL will now be censored.")
+
   
 ...
 
