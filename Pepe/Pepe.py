@@ -92,7 +92,7 @@ class Pepe:
     async def pepeCensor(self, ctx, url, offStr = "The provided url has been censored."):
         leadRole = "Officer"
         botRole = "ShallusBot Dev"
-        roleList = ctx.author.roles
+        roleList = ctx.message.author.roles
         if leadRole or botRole:
             self.censoredList[url] = offStr
             await self.bot.say("URL will now be censored.")
