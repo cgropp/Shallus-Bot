@@ -14,8 +14,7 @@ import aiohttp
 
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
-from os import path, listdir, makedirs
-
+import os
 
 ...
 
