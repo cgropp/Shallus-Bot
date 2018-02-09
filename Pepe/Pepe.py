@@ -14,7 +14,7 @@ import aiohttp
 
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
-from os import path, listdir
+from os import path, listdir, makedirs
 
 
 ...
@@ -38,10 +38,12 @@ class Pepe:
         if not path.exists(self.censorListPath):
             print("Censor list for Pepe does not exist. Creating list...")
             self.censoredList = {}
+            os.makedirs("data/pepe")
             dataIO.save_json(self.censorListPath, self.censoredList)
         elif not dataIO.is_valid_json(self.censorListPath):
             print("Censor list corrupted. Creating a new one...")
             self.censoredList = {}
+            os.makedirs("data/pepe")
             dataIO.save_json(self.censorListPath, self.censoredList)
         else:
             self.censoredList = dataIO.load_json(self.censorListPath)
