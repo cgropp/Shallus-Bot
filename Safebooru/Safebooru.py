@@ -964,7 +964,7 @@ class Safebooru:
 
 
         self.lastWaifuRolled[user.id] = {"name": waifuName, "img": "https://safebooru.donmai.us" + fileUrl}     # save as a "roll" for the waifulist
-		if "https://" in fileUrl:
+        if "https://" in fileUrl:
             return waifuName + "\n" + fileUrl
         else:
             return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
