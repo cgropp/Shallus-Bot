@@ -964,10 +964,11 @@ class Safebooru:
 
 
         self.lastWaifuRolled[user.id] = {"name": waifuName, "img": "https://safebooru.donmai.us" + fileUrl}     # save as a "roll" for the waifulist
-        if "raikou" not in fileUrl:
-            return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
-        else:
+		if "https://" in fileUrl:
             return waifuName + "\n" + fileUrl
+        else:
+            return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
+
 
     async def closeConnection():
         await self.session.close()
