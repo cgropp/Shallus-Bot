@@ -983,11 +983,13 @@ class Safebooru:
                 return await self.getSafebooruLink(paramDict, user, numTries - 1)  #none are available, try again
 
 
-        self.lastWaifuRolled[user.id] = {"name": waifuName, "img": "https://safebooru.donmai.us" + fileUrl}     # save as a "roll" for the waifulist
-        if "https://" in fileUrl:
-            return waifuName + "\n" + fileUrl
-        else:
-            return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
+        if "https://" not in fileUrl:
+            fileUrl = "https://safebooru.donmai.us" + fileUrl
+        
+                
+        self.lastWaifuRolled[user.id] = {"name": waifuName, "img": fileUrl}     # save as a "roll" for the waifulist
+        
+        return waifuName + "\n" + fileUrl
 
 
     async def closeConnection():
