@@ -67,6 +67,16 @@ class Safebooru:
 
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return
+        
+    @commands.command(pass_context=True)
+    async def waifu2(self, ctx):
+        """Posts a random non-Touhou waifu from Safebooru."""
+        params = {"tags": u'1girl -touhou'}
+        linkName = await self.getSafebooruLink(params, ctx.message.author)
+        await self.bot.say("Here is your waifu, " + ctx.message.author.mention + ": " + linkName)
+
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
+        return
 
     @commands.command(pass_context=True)
     async def husbando(self, ctx):
