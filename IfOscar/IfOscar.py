@@ -27,7 +27,7 @@ class IfOscar:
     @commands.command(pass_context=True)
     async def ifOscar(self, ctx, one: str, two: str):
         """If Oscar was a <_>, would he be called <_>co?"""
-        await self.bot.say("If Oscar was" + one + " would he be called " + two + "co?")
+        await self.bot.say("If Oscar was " + one + " would he be called " + two + "co?")
 
         #Write to stats
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
