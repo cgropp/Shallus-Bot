@@ -67,11 +67,31 @@ class Safebooru:
 
         await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
         return
+        
+    @commands.command(pass_context=True)
+    async def waifu2(self, ctx):
+        """Posts a random non-Touhou waifu from Safebooru."""
+        params = {"tags": u'1girl -touhou'}
+        linkName = await self.getSafebooruLink(params, ctx.message.author)
+        await self.bot.say("Here is your waifu, " + ctx.message.author.mention + ": " + linkName)
+
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
+        return
 
     @commands.command(pass_context=True)
     async def husbando(self, ctx):
         """Posts a random husbando from Safebooru."""
         params = {"tags": u'1boy solo'}
+        linkName = await self.getSafebooruLink(params, ctx.message.author)
+        await self.bot.say("Here's your husbando, " + ctx.message.author.mention + ": " + linkName)
+
+        await StatsTracker.updateStat(self, "commands", ctx, ctx.message.content[1:])
+        return        
+
+    @commands.command(pass_context=True)
+    async def husbando2(self, ctx):
+        """Posts a random non-Jojo husbando from Safebooru."""
+        params = {"tags": u'1boy -jojo_no_kimyou_na_bouken '}
         linkName = await self.getSafebooruLink(params, ctx.message.author)
         await self.bot.say("Here's your husbando, " + ctx.message.author.mention + ": " + linkName)
 
@@ -963,11 +983,13 @@ class Safebooru:
                 return await self.getSafebooruLink(paramDict, user, numTries - 1)  #none are available, try again
 
 
-        self.lastWaifuRolled[user.id] = {"name": waifuName, "img": "https://safebooru.donmai.us" + fileUrl}     # save as a "roll" for the waifulist
-        if "https://" in fileUrl:
-            return waifuName + "\n" + fileUrl
-        else:
-            return waifuName + "\nhttps://safebooru.donmai.us" + fileUrl
+        if "https://" not in fileUrl:
+            fileUrl = "https://safebooru.donmai.us" + fileUrl
+        
+                
+        self.lastWaifuRolled[user.id] = {"name": waifuName, "img": fileUrl}     # save as a "roll" for the waifulist
+        
+        return waifuName + "\n" + fileUrl
 
 
     async def closeConnection():
