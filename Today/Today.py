@@ -62,7 +62,8 @@ class Today:
         self.thursday = ["http://i0.kym-cdn.com/photos/images/newsfeed/001/091/402/9d6.jpg",
         "https://68.media.tumblr.com/ae1d7123d7ff24cb06bf658663b80e43/tumblr_ose2osWwgB1sjq4u4o1_540.png",
         "https://i.redd.it/6co99kbnkddz.png",
-        "https://i.redd.it/h3s9mvgbacyz.jpg"]
+        "https://i.redd.it/h3s9mvgbacyz.jpg",
+        "https://78.media.tumblr.com/cd85fe2605c950c02058af35701537e5/tumblr_p99jnqNWGA1rvzucio1_1280.jpg"]
         
         self.friday = ["https://68.media.tumblr.com/3f1d45c99115c357f0ca3a890701cfea/tumblr_ose2osWwgB1sjq4u4o3_1280.png",
         "https://twitter.com/nintendoamerica/status/698267084367785986",
